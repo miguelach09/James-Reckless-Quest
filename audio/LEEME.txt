@@ -1,0 +1,16 @@
+MÚSICA DE JAMES RECKLESS QUEST
+==============================
+
+Pon aquí tus archivos MP3, con estos nombres exactos:
+
+  music_title.mp3   ->  Pantalla de título / menú principal
+  music_game.mp3    ->  Mientras se juega (vuelo, rebotes, tienda)
+  music_boss.mp3    ->  Pelea contra el Jefe Final
+
+No necesitas hacer nada más: el autoload "MusicManager" los carga y los
+reproduce automáticamente con fundido. Si todavía no tienes alguno, el juego
+simplemente no suena ese momento y no da error.
+
+Puedes usar otros nombres o formatos (OGG) editando el diccionario TRACKS
+en res://scripts/music_manager.gd, y ajustar el volumen en la propiedad
+"volume_db" (por defecto -8 dB).

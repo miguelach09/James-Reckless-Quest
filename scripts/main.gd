@@ -20,6 +20,7 @@ var _boss: Node = null
 
 
 func _ready() -> void:
+	MusicManager.play("game")
 	victory_ui.hide()
 	victory_button.pressed.connect(_on_victory_continue)
 	world.set("player", player)
@@ -47,14 +48,23 @@ func _update_sky() -> void:
 	if biome != _current_biome:
 		_current_biome = biome
 		sky_texture.texture = load(SKIES[biome])
+		# --- Música según bioma ---
+		if biome == "volcano":
+			MusicManager.play("boss")
+		else:
+			MusicManager.play("game")
 
 
 func _on_state_changed(new_state: int) -> void:
 	match new_state:
 		GameManager.GameState.BOSS_FIGHT:
 			_spawn_boss()
+			MusicManager.play("boss")
 		GameManager.GameState.VICTORY:
 			victory_ui.show()
+		_:
+			# Cualquier otro estado es juego normal (vuelo, tienda tras el jefe...).
+			MusicManager.play("game")
 
 
 func _spawn_boss() -> void:

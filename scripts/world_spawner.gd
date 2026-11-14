@@ -1,6 +1,7 @@
 extends Node2D
 ## Genera suelo infinito, decoración de bioma, rebotadores y cañones.
-## Elimina (queue_free) todo lo que queda detrás de la cámara.
+## Mantiene el suelo generado alrededor del jugador, también hacia atrás, así
+## que reaparecer en un checkpoint anterior siempre tiene suelo firme.
 
 const BouncerScene: PackedScene = preload("res://scenes/Bouncer.tscn")
 
@@ -31,7 +32,9 @@ const WALL_TEXTURE := "res://assets/generated/volcanic_wall.png"
 
 var player: CharacterBody2D
 var active: bool = true
-var next_spawn_x: float = -SEG_WIDTH
+
+var _segments: Dictionary = {}   # index -> StaticBody2D
+var _bouncers: Dictionary = {}   # index -> Node2D
 
 
 func _ready() -> void:
@@ -48,10 +51,7 @@ func _process(_delta: float) -> void:
 		if player == null:
 			return
 	var cam_x: float = player.global_position.x
-	while next_spawn_x < cam_x + VIEW_AHEAD:
-		_spawn_segment(next_spawn_x)
-		next_spawn_x += SEG_WIDTH
-	_cleanup(cam_x)
+	_ensure_ground(cam_x)
 
 
 func biome_for_x(x: float) -> String:
@@ -62,7 +62,8 @@ func biome_for_x(x: float) -> String:
 	return "city"
 
 
-func _spawn_segment(x: float) -> void:
+func _spawn_segment(index: int) -> void:
+	var x: float = float(index) * SEG_WIDTH
 	var biome: String = biome_for_x(x)
 	var seg: StaticBody2D = StaticBody2D.new()
 	seg.position = Vector2(x + SEG_WIDTH * 0.5, ground_y + GROUND_THICKNESS * 0.5)
@@ -90,16 +91,18 @@ func _spawn_segment(x: float) -> void:
 	seg.add_child(top)
 
 	add_child(seg)
+	_segments[index] = seg
 
 	if x > 700.0 and randf() < BOUNCER_CHANCE:
-		_spawn_bouncer(x + randf_range(120.0, SEG_WIDTH - 120.0))
+		_spawn_bouncer(index, x + randf_range(120.0, SEG_WIDTH - 120.0))
 
 
-func _spawn_bouncer(x: float) -> void:
+func _spawn_bouncer(index: int, x: float) -> void:
 	var b: Node2D = BouncerScene.instantiate()
 	b.position = Vector2(x, ground_y - 44.0)
 	add_child(b)
 	b.setup(Bouncer.Kind.CRATE if randf() < CRATE_RATIO else Bouncer.Kind.ENEMY)
+	_bouncers[index] = b
 
 
 func _spawn_cannons() -> void:
@@ -120,8 +123,34 @@ func _spawn_wall() -> void:
 	add_child(wall)
 
 
-func _cleanup(cam_x: float) -> void:
-	for c in get_children():
-		if c is Node2D and not c.is_queued_for_deletion():
-			if c.global_position.x < cam_x - CLEANUP_BEHIND:
-				c.queue_free()
+## Crea los segmentos que falten en toda la ventana visible y libera los que
+## quedan lejos. Funciona también cuando el jugador retrocede (por ejemplo al
+## reaparecer en un checkpoint anterior), regenerando el suelo pisado.
+func _ensure_ground(cam_x: float) -> void:
+	var first_index: int = int(floor((cam_x - CLEANUP_BEHIND) / SEG_WIDTH))
+	var last_index: int = int(ceil((cam_x + VIEW_AHEAD) / SEG_WIDTH))
+	for i in range(first_index, last_index + 1):
+		if not _segments.has(i):
+			_spawn_segment(i)
+	_free_out_of_range(first_index, last_index)
+
+
+func _free_out_of_range(first_index: int, last_index: int) -> void:
+	var stale: Array = []
+	for i in _segments.keys():
+		if i < first_index or i > last_index:
+			stale.append(i)
+	for i in stale:
+		var s: Node = _segments[i]
+		if is_instance_valid(s):
+			s.queue_free()
+		_segments.erase(i)
+	stale.clear()
+	for i in _bouncers.keys():
+		if i < first_index or i > last_index:
+			stale.append(i)
+	for i in stale:
+		var b: Node = _bouncers[i]
+		if is_instance_valid(b):
+			b.queue_free()
+		_bouncers.erase(i)

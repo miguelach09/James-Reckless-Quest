@@ -22,6 +22,7 @@ var _typing: bool = false
 
 
 func _ready() -> void:
+	MusicManager.play("title")
 	GameManager.set_state(GameManager.GameState.INTRO_MENU)
 	main_menu.hide()
 	story_panel.show()
