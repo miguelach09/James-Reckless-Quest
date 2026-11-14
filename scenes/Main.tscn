@@ -1,19 +1,28 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://qydtemfmpust"]
 
-[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="2_player"]
-[ext_resource type="Script" path="res://scripts/world_spawner.gd" id="3_world"]
+[ext_resource type="Script" uid="uid://c2sfowm5soswy" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://ccmt4ofwdl2ls" path="res://scenes/Player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://bfu0t5nxtuiqg" path="res://scripts/world_spawner.gd" id="3_world"]
 [ext_resource type="PackedScene" path="res://scenes/TriviaUI.tscn" id="4_trivia"]
 [ext_resource type="PackedScene" path="res://scenes/ShopUI.tscn" id="5_shop"]
-[ext_resource type="Texture2D" path="res://assets/uploaded/Wq89waY_rEI296y6WOdhp.png" id="6_sky"]
+[ext_resource type="Texture2D" uid="uid://bgo5ljcsono31" path="res://assets/uploaded/Wq89waY_rEI296y6WOdhp.png" id="6_sky"]
+[ext_resource type="Texture2D" uid="uid://dxr4s36fx7hyx" path="res://assets/uploaded/KrxFgLZB3mnphXMHIRAUk.png" id="7_nxtc6"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=962961728]
 script = ExtResource("1_main")
 
-[node name="Sky" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=245077082]
+
+[node name="Label" type="Label" parent="CanvasLayer" unique_id=1892005633]
+offset_right = 40.0
+offset_bottom = 31.0
+text = "Para hacer Slam sobre el enemigo, presiona Espacio!
+Hecho por Sebas y Miguel!"
+
+[node name="Sky" type="CanvasLayer" parent="." unique_id=1726326175]
 layer = -10
 
-[node name="SkyTexture" type="TextureRect" parent="Sky"]
+[node name="SkyTexture" type="TextureRect" parent="Sky" unique_id=1505989506]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -23,20 +32,25 @@ texture = ExtResource("6_sky")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="World" type="Node2D" parent="."]
+[node name="World" type="Node2D" parent="." unique_id=730867103]
 script = ExtResource("3_world")
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
+[node name="Player" parent="." unique_id=2125948217 instance=ExtResource("2_player")]
 position = Vector2(80, 520)
 
-[node name="TriviaUI" parent="." instance=ExtResource("4_trivia")]
+[node name="TriviaUI" parent="." unique_id=421112224 instance=ExtResource("4_trivia")]
 
-[node name="ShopUI" parent="." instance=ExtResource("5_shop")]
+[node name="ShopUI" parent="." unique_id=186904346 instance=ExtResource("5_shop")]
 
-[node name="VictoryUI" type="CanvasLayer" parent="."]
+[node name="muerto_abajito" type="Sprite2D" parent="ShopUI" unique_id=841384289]
+visible = false
+position = Vector2(579, 561)
+texture = ExtResource("7_nxtc6")
+
+[node name="VictoryUI" type="CanvasLayer" parent="." unique_id=948369541]
 layer = 20
 
-[node name="Root" type="Control" parent="VictoryUI"]
+[node name="Root" type="Control" parent="VictoryUI" unique_id=244004009]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -44,7 +58,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Dim" type="ColorRect" parent="VictoryUI/Root"]
+[node name="Dim" type="ColorRect" parent="VictoryUI/Root" unique_id=917569704]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -53,7 +67,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.72)
 
-[node name="Center" type="CenterContainer" parent="VictoryUI/Root"]
+[node name="Center" type="CenterContainer" parent="VictoryUI/Root" unique_id=1116556463]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -61,21 +75,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="VictoryUI/Root/Center"]
+[node name="Panel" type="PanelContainer" parent="VictoryUI/Root/Center" unique_id=2026431078]
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="VictoryUI/Root/Center/Panel"]
+[node name="Margin" type="MarginContainer" parent="VictoryUI/Root/Center/Panel" unique_id=1944501333]
 layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 30
 theme_override_constants/margin_right = 36
 theme_override_constants/margin_bottom = 30
 
-[node name="VBox" type="VBoxContainer" parent="VictoryUI/Root/Center/Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="VictoryUI/Root/Center/Panel/Margin" unique_id=1972936787]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="VictoryUI/Root/Center/Panel/Margin/VBox"]
+[node name="Title" type="Label" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1843828641]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.24, 0.19, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.02, 1)
@@ -84,12 +98,12 @@ theme_override_font_sizes/font_size = 46
 text = "¡PEPITO RESCATADO!"
 horizontal_alignment = 1
 
-[node name="Text" type="Label" parent="VictoryUI/Root/Center/Panel/Margin/VBox"]
+[node name="Text" type="Label" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1760901472]
 layout_mode = 2
 text = "Has derrotado al Líder de los Seres Subterráneos."
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="VictoryUI/Root/Center/Panel/Margin/VBox"]
+[node name="Button" type="Button" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1034489806]
 custom_minimum_size = Vector2(320, 58)
 layout_mode = 2
 size_flags_horizontal = 4

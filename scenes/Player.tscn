@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://df6l2314ojbvl" path="res://assets/james/norm_attack_0.png" id="2_d3wef"]
 [ext_resource type="Texture2D" uid="uid://d1ewon5xp2u7e" path="res://assets/generated/james_fly.png" id="3_lkdrv"]
 [ext_resource type="Texture2D" uid="uid://t40mquc50gwb" path="res://assets/james/norm_hit_0.png" id="3_o4126"]
+[ext_resource type="Texture2D" uid="uid://dxr4s36fx7hyx" path="res://assets/uploaded/KrxFgLZB3mnphXMHIRAUk.png" id="3_p7iby"]
 [ext_resource type="Texture2D" uid="uid://c80alx7dvno18" path="res://assets/james/norm_idle_0.png" id="4_lkdrv"]
 [ext_resource type="Texture2D" uid="uid://r1vq8edt5kb8" path="res://assets/james/norm_idle_1.png" id="5_p7iby"]
 [ext_resource type="Texture2D" uid="uid://c8keehcehlm44" path="res://assets/james/norm_jump_0.png" id="6_0rnld"]
@@ -45,6 +46,14 @@ animations = [{
 }],
 "loop": 0,
 "name": &"attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_p7iby")
+}],
+"loop": 1,
+"name": &"dead",
 "speed": 5.0
 }, {
 "frames": [{
@@ -124,7 +133,7 @@ script = ExtResource("1_player")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=1772884284]
 sprite_frames = SubResource("SpriteFrames_sfy4j")
-animation = &"idle"
+animation = &"dead"
 autoplay = "idle"
 offset = Vector2(0, -92)
 

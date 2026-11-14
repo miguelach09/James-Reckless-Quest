@@ -35,7 +35,10 @@ var _fall_time: float = 0.0
 var _grounded_active: bool = false
 var _grounded_timer: float = 0.0
 var _max_reached_x: float = 0.0
+var _distance_traveled: float = 0.0
+var _distance_at_death: float = 0.0
 var _is_dead: bool = false
+var _time_on_ground: float = 0.0
 
 
 func _ready() -> void:
@@ -75,28 +78,38 @@ func _fly(delta: float) -> void:
 	_update_fall_watch(delta)
 	_check_boss_victory()
 	
-	## Trackear la posición máxima alcanzada para checkpoints
+	## Trackear posición máxima para checkpoints
 	if global_position.x > _max_reached_x:
 		_max_reached_x = global_position.x
 	
+	## Actualizar distancia recorrida
+	_distance_traveled = max(0.0, _max_reached_x - _run_start_x)
+	
+
 	_update_checkpoint()
 	_update_anim()
 
+
 	if not is_on_floor():
-		## Si James está cayendo rápido o tiene velocidad vertical positiva,
-		## permitir el bounce. Si está quieto cerca del suelo, bloquear el bounce.
-		if velocity.y > 0.0 and _grounded_timer < 0.1:
-			## James aún está recuperándose del bounce, permitir otro bounce suave
-			_can_bounce = true
-		else:
-			_can_bounce = false
-	elif velocity.y < -50.0 and _can_bounce:
-		## James está cayendo fuerte, hacer bounce normal
+		_can_bounce = true
+		_time_on_ground = _time_on_ground
+	elif velocity.y >= 0.0 and _can_bounce:
 		_bounce()
-		_can_bounce = false
+
+
+	## **CORRECCIÓN DEFINITIVA: Forzar velocity.x = 0 cuando James está quieto en el suelo**
+	## Esto activará inmediatamente el sprite de muerto
+	if is_on_floor() and not _slam_active:
+		## Si la velocidad horizontal es baja O hace poco que toca el suelo, detenerlo
+		if absf(velocity.x) < 50:
+			velocity.x = 0
+		_time_on_ground += delta
+	else:
+		_time_on_ground = _time_on_ground
+
 
 	if is_on_floor() and absf(velocity.x) < MIN_SPEED_TO_CONTINUE:
-		_check_stopped()
+		_check_stopped();
 
 
 func _start_slam() -> void:
@@ -119,35 +132,48 @@ func _check_stopped() -> void:
 	if GameManager.current_state == GameManager.GameState.BOSS_FIGHT:
 		GameManager.boss_knockback_to_volcano()
 	else:
-		## Si James está quieto en el suelo con velocidad baja, activar estado "muerto"
-		if is_on_floor() and absf(velocity.x) < MIN_SPEED_TO_CONTINUE:
+		if _time_on_ground > 0.05:
 			_is_dead = true
 			_grounded_fallen()
+			_can_bounce = false
+			GameManager.open_shop()
+			var james = get_tree().get_first_node_in_group("player")
+			if james:
+				hide()
+				james.launch_from_checkpoint
+				show()
+				_play_anim("idle")
+				_is_dead = false
 		else:
 			_grounded_active = false
-			_is_dead = false
-	stopped.emit()
 
 
 func _grounded_fallen() -> void:
-	## Cambiar a estado de James muerto/aplastado en el suelo
 	_is_dead = true
 	_grounded_timer = 0.0
 	_grounded_active = true
-	## Resetear velocidad horizontal para que parezca realmente muerto
-	velocity.x = 0.0
+	velocity.x = 0
+	## Guardar distancia recorrida al morir
+	_distance_at_death = _distance_traveled
+	## Mostrar distancia en la muerte
+	_show_distance_label()
+	_play_anim("dead")
+	_can_bounce = false
+	GameManager.open_shop()
 
+
+func _show_distance_label() -> void:
+	## Actualiza una etiqueta con la distancia recorrida al morir
+	## Se busca un nodo de distancia en la escena actual
+	var death_label = get_node_or_null("Global/UI/DeathDistance")
+	if death_label and _distance_at_death > 0:
+		death_label.text = "Distancia: " + str(int(_distance_at_death)) + " m"
 
 func _update_anim() -> void:
 	sprite.flip_h = velocity.x < -1.0
 	if _is_dead:
-		## Mostrar sprite de James muerto/aplastado en el suelo
-		## El sprite permanecerá quieto (usamos idle pero el estado _is_dead indica que está muerto)
-		_play_anim("idle")
-	elif _slam_active:
-		_play_anim("attack")
+		_play_anim("dead")
 	elif not is_on_floor():
-		# Subiendo: pose de salto; cayendo: planeo/floteo animado.
 		_play_anim("jump" if velocity.y < 0.0 else "fly")
 	elif absf(velocity.x) < 25.0:
 		_play_anim("idle")
@@ -155,8 +181,6 @@ func _update_anim() -> void:
 		_play_anim("run")
 
 
-## Vigila caídas infinitas: si James lleva demasiado tiempo en el aire o se
-## hunde por debajo del suelo, lo devuelve al mapa en el checkpoint actual.
 func _update_fall_watch(delta: float) -> void:
 	if is_on_floor():
 		_fall_time = 0.0
@@ -174,19 +198,23 @@ func _respawn() -> void:
 	_charging_boss = false
 	_can_bounce = false
 	_boost_time = 0.0
-	_max_reached_x = 0.0  ## Reiniciar la posición máxima alcanzada
+	_max_reached_x = 0.0
 	boost_fx.hide()
+
+	## Guardar distancia al morir para mostrarla después
+	_distance_at_death = _distance_traveled
+
+	## Mostrar distancia al respawn
+	_show_distance_label()
 
 	global_position = Vector2(GameManager.current_checkpoint_x + 80.0, launch_ground_y)
 	velocity = Vector2.ZERO
 	_run_start_x = global_position.x
 	sprite.flip_h = false
 	_play_anim("idle")
-	# Vuelve al Campamento Táctico para poder relanzarse desde el checkpoint.
 	GameManager.open_shop()
 
 
-## Coloca a James en el Cañón del Checkpoint actual y lo dispara.
 func launch_from_checkpoint() -> void:
 	boss_hits_taken = 0
 	_slam_active = false
@@ -194,7 +222,7 @@ func launch_from_checkpoint() -> void:
 	_can_bounce = false
 	_boost_time = 0.0
 	_fall_time = 0.0
-	_max_reached_x = 0.0  ## Reiniciar la posición máxima alcanzada
+	_max_reached_x = 0.0
 	boost_fx.hide()
 
 	global_position = Vector2(GameManager.current_checkpoint_x + 80.0, launch_ground_y)
@@ -206,7 +234,6 @@ func launch_from_checkpoint() -> void:
 	GameManager.set_state(GameManager.GameState.FLYING)
 
 
-## Resultado de la trivia: Rocket Boost o pérdida de velocidad.
 func apply_trivia_boost(is_correct: bool) -> void:
 	if is_correct:
 		var boost: float = GameManager.trivia_boost_multiplier()
@@ -230,15 +257,22 @@ func _try_charge_boss() -> void:
 		_charging_boss = false
 		return
 	for t in targets:
-		if t.has_method("take_damage") \
-				and global_position.distance_to(t.global_position) < BOSS_CHARGE_RANGE:
-			t.take_damage(1)
-			_charging_boss = false
-			velocity.x *= 0.4
-			return
+		if t.has_method("take_damage"):
+			## Usar move_and_collide para detección de colisión más robusta
+			var collision = move_and_collide(Vector2.ZERO)
+			if collision and collision.collider == t:
+				t.take_damage(1)
+				_charging_boss = false
+				velocity.x *= 0.4
+				return
+			## Alternativa: verificar posición relativa
+			if global_position.distance_to(t.global_position) < BOSS_CHARGE_RANGE + 100:
+				t.take_damage(1)
+				_charging_boss = false
+				velocity.x *= 0.4
+				return
 
 
-## Llamado por los proyectiles del Jefe.
 func take_boss_obstacle_hit() -> void:
 	if GameManager.current_state != GameManager.GameState.BOSS_FIGHT:
 		return
@@ -251,8 +285,6 @@ func take_boss_obstacle_hit() -> void:
 
 
 func _update_checkpoint() -> void:
-	## Usar la posición máxima alcanzada para registrar checkpoints
-	## Esto evita que los checkpoints se pierdan cuando James rebota
 	GameManager.update_checkpoint(_max_reached_x)
 	if _max_reached_x >= GameManager.BOSS_TRIGGER_X:
 		GameManager.start_boss_fight()
@@ -263,24 +295,16 @@ func _play_anim(anim: StringName) -> void:
 		sprite.play(anim)
 
 
-## Variables para estado de victoria del boss
 var _victory_screen: bool = false
 var _defeated_by_boss: bool = false
 
 
-## Función para verificar victoria del boss
 func _check_boss_victory() -> void:
 	if GameManager.boss_defeated and not _victory_screen and _defeated_by_boss:
 		_victory_screen = true
-		## Usar un timer simple y cambiar al menú después de 3 segundos
 		get_tree().create_timer(3.0).timeout.connect(_on_victory_timeout)
 		get_tree().create_timer(3.0).start()
 
 
-## Controlador de timeout de victoria
 func _on_victory_timeout() -> void:
 	get_tree().change_scene_to_file("res://scenes/IntroMenu.tscn")
-
-
-## En la función _physics_process, verificar victoria del boss cada frame
-## (esta llamada se agregará en el processing)

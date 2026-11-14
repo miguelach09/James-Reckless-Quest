@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://d2u0uxb0d5oym"]
 
-[ext_resource type="Script" path="res://scripts/intro_menu.gd" id="1_intro"]
-[ext_resource type="Texture2D" path="res://assets/generated/menu_bg.png" id="2_bg"]
+[ext_resource type="Script" uid="uid://bqnuyinps5dtl" path="res://scripts/intro_menu.gd" id="1_intro"]
+[ext_resource type="Texture2D" uid="uid://cm51w7us5aqft" path="res://assets/uploaded/PiRsvfNC7jcghFwNSaBXM.jpg" id="2_dopa3"]
 
-[node name="IntroMenu" type="Control"]
+[node name="IntroMenu" type="Control" unique_id=820696766]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,19 +12,12 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_intro")
 
-[node name="Background" type="TextureRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("2_bg")
-expand_mode = 1
-stretch_mode = 6
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=11045848]
+position = Vector2(578, 327.75)
+scale = Vector2(2.3786008, 1.5572792)
+texture = ExtResource("2_dopa3")
 
-[node name="Vignette" type="ColorRect" parent="."]
+[node name="Vignette" type="ColorRect" parent="." unique_id=2071778026]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,7 +27,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.02, 0.01, 0.03, 0.45)
 
-[node name="StoryPanel" type="Control" parent="."]
+[node name="StoryPanel" type="Control" parent="." unique_id=1587134695]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,7 +35,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="StoryPanel"]
+[node name="Margin" type="MarginContainer" parent="StoryPanel" unique_id=320876313]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -54,11 +47,11 @@ theme_override_constants/margin_top = 95
 theme_override_constants/margin_right = 130
 theme_override_constants/margin_bottom = 95
 
-[node name="VBox" type="VBoxContainer" parent="StoryPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="StoryPanel/Margin" unique_id=2082903301]
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="TitleLabel" type="Label" parent="StoryPanel/Margin/VBox"]
+[node name="TitleLabel" type="Label" parent="StoryPanel/Margin/VBox" unique_id=949899113]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.24, 0.19, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.02, 1)
@@ -67,7 +60,7 @@ theme_override_font_sizes/font_size = 46
 text = "PRÓLOGO"
 horizontal_alignment = 1
 
-[node name="StoryText" type="RichTextLabel" parent="StoryPanel/Margin/VBox"]
+[node name="StoryText" type="RichTextLabel" parent="StoryPanel/Margin/VBox" unique_id=1815314433]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/normal_font_size = 24
@@ -75,14 +68,14 @@ bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
-[node name="ContinueButton" type="Button" parent="StoryPanel/Margin/VBox"]
+[node name="ContinueButton" type="Button" parent="StoryPanel/Margin/VBox" unique_id=2069828381]
 custom_minimum_size = Vector2(280, 62)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Saltar"
 
-[node name="MainMenu" type="Control" parent="."]
+[node name="MainMenu" type="Control" parent="." unique_id=981540995]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -91,7 +84,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Center" type="CenterContainer" parent="MainMenu"]
+[node name="Center" type="CenterContainer" parent="MainMenu" unique_id=602959087]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -99,48 +92,48 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="MainMenu/Center"]
+[node name="VBox" type="VBoxContainer" parent="MainMenu/Center" unique_id=984635978]
 layout_mode = 2
 theme_override_constants/separation = 18
 
-[node name="Title" type="Label" parent="MainMenu/Center/VBox"]
+[node name="Title" type="Label" parent="MainMenu/Center/VBox" unique_id=319534388]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.97, 0.96, 0.9, 1)
-theme_override_colors/font_outline_color = Color(0.12, 0.02, 0.02, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
-theme_override_constants/outline_size = 12
+theme_override_colors/font_outline_color = Color(0.12, 0.02, 0.02, 1)
 theme_override_constants/shadow_offset_x = 5
 theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 12
 theme_override_font_sizes/font_size = 68
 text = "JAMES RECKLESS QUEST"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="MainMenu/Center/VBox"]
+[node name="Subtitle" type="Label" parent="MainMenu/Center/VBox" unique_id=282460020]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.75, 0.63, 1)
 theme_override_font_sizes/font_size = 21
 text = "UNA MISIÓN TEMERARIA CONTRA LOS SERES SUBTERRÁNEOS"
 horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="MainMenu/Center/VBox"]
+[node name="Spacer" type="Control" parent="MainMenu/Center/VBox" unique_id=1501091153]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
-[node name="PlayButton" type="Button" parent="MainMenu/Center/VBox"]
+[node name="PlayButton" type="Button" parent="MainMenu/Center/VBox" unique_id=560544548]
 custom_minimum_size = Vector2(320, 68)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "JUGAR"
 
-[node name="QuitButton" type="Button" parent="MainMenu/Center/VBox"]
+[node name="QuitButton" type="Button" parent="MainMenu/Center/VBox" unique_id=1929814974]
 custom_minimum_size = Vector2(320, 56)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "SALIR"
 
-[node name="Hint" type="Label" parent="MainMenu/Center/VBox"]
+[node name="Hint" type="Label" parent="MainMenu/Center/VBox" unique_id=1913278347]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.58, 0.52, 1)
 theme_override_font_sizes/font_size = 17
