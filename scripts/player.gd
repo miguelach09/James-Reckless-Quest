@@ -195,10 +195,10 @@ func launch_from_checkpoint() -> void:
 func apply_trivia_boost(is_correct: bool) -> void:
 	if is_correct:
 		var boost: float = GameManager.trivia_boost_multiplier()
-		velocity.x = maxf(velocity.x, 0.0) + 450.0 * boost
-		velocity.y = -600.0 - 120.0 * boost
+		velocity.x = maxf(velocity.x, 0.0) + 600.0 * boost
+		velocity.y = -700.0 - 150.0 * boost
 		_slam_active = false
-		_boost_time = 0.5
+		_boost_time = 1.0
 		boost_fx.show()
 		if GameManager.current_state == GameManager.GameState.BOSS_FIGHT:
 			_charging_boss = true

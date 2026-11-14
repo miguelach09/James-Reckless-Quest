@@ -81,7 +81,7 @@ func elasticity_factor() -> float:
 
 
 func trivia_boost_multiplier() -> float:
-	return 1.0 + float(trivia_boost_level - 1) * 0.35
+	return 1.0 + float(trivia_boost_level - 1) * 0.50
 
 
 func upgrade_level(upgrade_id: String) -> int:
