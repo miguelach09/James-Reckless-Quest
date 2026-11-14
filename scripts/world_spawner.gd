@@ -7,8 +7,8 @@ const BouncerScene: PackedScene = preload("res://scenes/Bouncer.tscn")
 
 const SEG_WIDTH := 512.0
 const GROUND_THICKNESS := 900.0
-const VIEW_AHEAD := 1700.0
-const CLEANUP_BEHIND := 1100.0
+const VIEW_AHEAD := 2500.0
+const CLEANUP_BEHIND := 1300.0
 const BOUNCER_CHANCE := 1.0
 const CRATE_RATIO := 0.5
 
@@ -62,6 +62,79 @@ func biome_for_x(x: float) -> String:
 	return "city"
 
 
+func _ensure_ground(cam_x: float) -> void:
+	## Genera y mantiene segments de suelo alrededor de la posición de la cámara.
+	## Asegura que siempre hay terreno tanto adelante como detrás del jugador.
+	
+	var start_index: int = int(cam_x / SEG_WIDTH) - 1
+	var end_index: int = int((cam_x + VIEW_AHEAD) / SEG_WIDTH) + 1
+	
+	## Asegurar segments hacia adelante
+	for i in range(start_index, end_index + 1):
+		if not _segments.has(i):
+			_spawn_segment(i)
+	
+	## Limpiar segments muy atrás (más atrás de CLEANUP_BEHIND)
+	var cleanup_index: int = int(cam_x / SEG_WIDTH) - int(CLEANUP_BEHIND / SEG_WIDTH) - 1
+	for i in _segments.keys():
+		if i < cleanup_index:
+			var s: Node = _segments[i]
+			if is_instance_valid(s):
+				s.queue_free()
+			_segments.erase(i)
+
+
+func _free_out_of_range(first_index: int, last_index: int) -> void:
+	## Libera segmentos y bouncers que quedaron fuera de la ventana visible.
+	## Solo elimina entries cuyo nodo sea inválido, manteniendo las instancias válidas.
+	
+	## Paso 1: Limpiar segmentos fuera de rango (solo los inválidos)
+	var stale_segments: Array = []
+	for i in _segments.keys():
+		if i < first_index or i > last_index:
+			stale_segments.append(i)
+	for i in stale_segments:
+		var s: Node = _segments[i]
+		if not is_instance_valid(s):
+			_segments.erase(i)
+	
+	## Paso 2: Limpiar bouncers fuera de rango (solo los inválidos)
+	var stale_bouncers: Array = []
+	for key in _bouncers.keys():
+		## Keys son strings tipo "0_0", "1_1", etc. Extraemos el índice numérico.
+		var parts: Array = str(key).split("_")
+		var idx: int = -1
+		if parts.size() >= 1:
+			idx = int(parts[0])
+		if idx < first_index or idx > last_index:
+			stale_bouncers.append(key)
+	
+	## Solo borramos bouncers cuyo nodo ya no es válido (usando has() para evitar acceder a instancias freed)
+	for key in stale_bouncers:
+		if _bouncers.has(key):
+			var b: Node = _bouncers[key]
+			if not is_instance_valid(b):
+				_bouncers.erase(key)
+
+
+func _spawn_cannons() -> void:
+	var tex: Texture2D = load(CANNON_TEXTURE)
+	for cp in CHECKPOINTS:
+		var cannon: Sprite2D = Sprite2D.new()
+		cannon.texture = tex
+		cannon.centered = false
+		cannon.position = Vector2(cp - 10.0, ground_y - float(tex.get_height()) + 40.0)
+		add_child(cannon)
+
+
+func _spawn_wall() -> void:
+	var tex: Texture2D = load(WALL_TEXTURE)
+	var wall: Sprite2D = Sprite2D.new()
+	wall.texture = tex
+	wall.position = Vector2(GameManager.BOSS_TRIGGER_X, ground_y - float(tex.get_height()) * 0.5 + 20.0)
+	add_child(wall)
+
+
 func _spawn_segment(index: int) -> void:
 	var x: float = float(index) * SEG_WIDTH
 	var biome: String = biome_for_x(x)
@@ -93,69 +166,36 @@ func _spawn_segment(index: int) -> void:
 	add_child(seg)
 	_segments[index] = seg
 
-	if x > 700.0 and randf() < BOUNCER_CHANCE:
-		_spawn_bouncer(index, x + randf_range(120.0, SEG_WIDTH - 120.0))
+	## Spawnear 2 bouncers por segment con posiciones variables cerca del suelo
+	_spawn_two_bouncers(index, x)
 
 
-func _spawn_bouncer(index: int, x: float) -> void:
+func _spawn_two_bouncers(index: int, seg_x: float) -> void:
+	var bouncer_y_min: float = ground_y - 44.0
+	var bouncer_y_max: float = ground_y - 120.0
+
+	for i in range(2):
+		var offset_x: float = randf_range(SEG_WIDTH * 0.15, SEG_WIDTH * 0.85)
+		var offset_y: float = randf_range(bouncer_y_min - 20.0, bouncer_y_max)
+		var bx: float = seg_x + offset_x
+		var by: float = clamp(offset_y, bouncer_y_min, ground_y - 1.0)
+		_spawn_bouncer_at_index(index, i, bx, by)
+
+
+func _spawn_bouncer_at_index(index: int, bouncer_idx: int, x: float, y: float) -> void:
+	var key: String = str(index) + "_" + str(bouncer_idx)
+	if key in _bouncers:
+		return
 	var b: Node2D = BouncerScene.instantiate()
-	b.position = Vector2(x, ground_y - 44.0)
+	b.position = Vector2(x, clamp(y, ground_y - 120, ground_y - 44))
 	add_child(b)
-	b.setup(Bouncer.Kind.CRATE if randf() < CRATE_RATIO else Bouncer.Kind.ENEMY)
-	_bouncers[index] = b
+	b.setup(Bouncer.Kind.CRATE if randf() < 0.5 else Bouncer.Kind.ENEMY)
+	_bouncers[key] = b
 
 
-func _spawn_cannons() -> void:
-	var tex: Texture2D = load(CANNON_TEXTURE)
-	for cp in CHECKPOINTS:
-		var cannon: Sprite2D = Sprite2D.new()
-		cannon.texture = tex
-		cannon.centered = false
-		cannon.position = Vector2(cp - 10.0, ground_y - float(tex.get_height()) + 40.0)
-		add_child(cannon)
-
-
-func _spawn_wall() -> void:
-	var tex: Texture2D = load(WALL_TEXTURE)
-	var wall: Sprite2D = Sprite2D.new()
-	wall.texture = tex
-	wall.position = Vector2(GameManager.BOSS_TRIGGER_X, ground_y - float(tex.get_height()) * 0.5 + 20.0)
-	add_child(wall)
-
-
-## Crea los segmentos que falten en toda la ventana visible y libera los que
-## quedan lejos. Funciona también cuando el jugador retrocede (por ejemplo al
-## reaparecer en un checkpoint anterior), regenerando el suelo pisado.
-func _ensure_ground(cam_x: float) -> void:
-	var first_index: int = int(floor((cam_x - CLEANUP_BEHIND) / SEG_WIDTH))
-	var last_index: int = int(ceil((cam_x + VIEW_AHEAD) / SEG_WIDTH))
-	for i in range(first_index, last_index + 1):
-		if not _segments.has(i):
-			_spawn_segment(i)
-	_free_out_of_range(first_index, last_index)
-
-
-func _free_out_of_range(first_index: int, last_index: int) -> void:
-	## Libera segmentos y bouncers que quedaron fuera de la ventana visible.
-	## Colecta las claves a borrar en arrays temporales, luego las elimina para evitar modificar el diccionario durante la iteración.
-	var stale_segments: Array = []
-	for i in _segments.keys():
-		if i < first_index or i > last_index:
-			stale_segments.append(i)
-	for i in stale_segments:
-		var s: Node = _segments[i]
-		if is_instance_valid(s):
-			s.queue_free()
-	for i in stale_segments:
-		_segments.erase(i)
-
-	var stale_bouncers: Array = []
-	for i in _bouncers.keys():
-		if i < first_index or i > last_index:
-			stale_bouncers.append(i)
-	for i in stale_bouncers:
-		var b: Node = _bouncers[i]
-		if is_instance_valid(b):
-			b.queue_free()
-	for i in stale_bouncers:
-		_bouncers.erase(i)
+func _is_bouncer_valid(key: String) -> bool:
+	## Retorna true si el bouncer existe en el diccionario Y su instancia es válida
+	if not _bouncers.has(key):
+		return false
+	var b: Node = _bouncers[key]
+	return is_instance_valid(b)

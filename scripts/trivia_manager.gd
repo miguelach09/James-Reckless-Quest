@@ -7,16 +7,54 @@ const REWARD_COINS := 25
 const ANSWER_TIME := 8.0
 const SLOW_SCALE := 0.1
 
-const QUESTIONS: Array[Dictionary] = [
-	{"q": "¿Qué sentido está más desarrollado en los Seres Subterráneos?", "a": ["Visión en la oscuridad", "Vuelo", "Camuflaje ácido", "Telepatía"], "c": 0},
-	{"q": "¿Cuántos hermanos tiene James?", "a": ["Uno: Pepito", "Dos", "Ninguno", "Tres"], "c": 0},
-	{"q": "¿Qué arma usa James para aplastar enemigos desde el aire?", "a": ["El Slam", "Una espada", "Un látigo", "Una granada"], "c": 0},
-	{"q": "¿Qué biome viene DESPUÉS de La Ciudad?", "a": ["La Selva", "El Desierto", "El Mar", "El Espacio"], "c": 0},
-	{"q": "¿Dónde está cautivo Pepito?", "a": ["En un volcán activo", "En la luna", "En un castillo", "Bajo el mar"], "c": 0},
-	{"q": "¿Qué conservan las Botas Tácticas al rebotar?", "a": ["La velocidad horizontal", "La munición", "La vida", "El tiempo"], "c": 0},
-	{"q": "¿Qué obtiene James al acertar una trivia?", "a": ["Un Rocket Boost", "Un escudo", "Un mapa", "Un aliado"], "c": 0},
-	{"q": "¿Qué pasa si James responde mal una trivia?", "a": ["Pierde la mitad de su velocidad", "Muere", "Vuelve al menú", "Se queda dormido"], "c": 0},
-]
+const QUESTIONS := {
+	"1": {"q": "¿Qué sentido está más desarrollado en los Seres Subterráneos?", "a": ["Visión en la oscuridad", "Vuelo", "Camuflaje ácido", "Telepatía"], "c": 0},
+	"2": {"q": "¿Cuántos hermanos tiene James?", "a": ["Uno: Pepito", "Dos", "Ninguno", "Tres"], "c": 0},
+	"3": {"q": "¿Qué arma usa James para aplastar enemigos desde el aire?", "a": ["El Slam", "Una espada", "Un látigo", "Una granada"], "c": 0},
+	"4": {"q": "¿Qué biome viene DESPUÉS de La Ciudad?", "a": ["La Selva", "El Desierto", "El Mar", "El Espacio"], "c": 0},
+	"5": {"q": "¿Dónde está cautivo Pepito?", "a": ["En un volcán activo", "En la luna", "En un castillo", "Bajo el mar"], "c": 0},
+	"6": {"q": "¿Qué conservan las Botas Tácticas al rebotar?", "a": ["La velocidad horizontal", "La munición", "La vida", "El tiempo"], "c": 0},
+	"7": {"q": "¿Qué obtiene James al acertar una trivia?", "a": ["Un Rocket Boost", "Un escudo", "Un mapa", "Un aliado"], "c": 0},
+	"8": {"q": "¿Qué pasa si James responde mal una trivia?", "a": ["Pierde la mitad de su velocidad", "Muere", "Vuelve al menú", "Se queda dormido"], "c": 0},
+	"9": {"q": "¿Cuál es el nombre real de James?", "a": ["James", "Juan", "José", "Miguel"], "c": 0},
+	"10": {"q": "¿De qué color es la cabeza de James?", "a": ["Roja", "Azul", "Verde", "Amarilla"], "c": 0},
+	"11": {"q": "¿Qué tipo de vehículo usó James para cruzar la ciudad?", "a": ["Cañón táctico", "Helicóptero", "Globos", "Patines"], "c": 0},
+	"12": {"q": "¿Cuál es el nombre del hermano de James?", "a": ["Pepito", "Pablo", "Pedro", "Ricardo"], "c": 0},
+	"13": {"q": "¿Qué arma secundaria tiene James?", "a": ["Látigo", "Espada", "Granada", "Ninguna"], "c": 0},
+	"14": {"q": "¿En qué bioma se encuentra el checkpoint inicial?", "a": ["Ciudad", "Selva", "Volcano", "Desierto"], "c": 0},
+	"15": {"q": "¿Qué poder conservan las Botas Tácticas?", "a": ["Velocidad horizontal", "Salto más alto", "Respiración bajo agua", "Visión nocturna"], "c": 0},
+}
+
+## Lista ordenada de preguntas (para evitar repeticiones)
+var _used_questions: Array = []
+
+func get_random_question() -> Dictionary:
+	## Retorna una pregunta aleatoria que no haya sido usada recientemente
+	## _used_questions almacena los keys (IDs) de preguntas ya usadas
+	
+	var available_keys: Array = []
+	for key in QUESTIONS.keys():
+		## Si el key no está en la lista de usados, está disponible
+		if not _used_questions.has(key):
+			available_keys.append(key)
+	
+	## Si no hay preguntas disponibles, reiniciar la lista de usadas
+	if available_keys.size() == 0:
+		_used_questions = []
+		available_keys = QUESTIONS.keys()
+	
+	## Seleccionar un key aleatorio de los disponibles
+	var random_key: String = available_keys.pick_random()
+	## Obtener el diccionario de pregunta usando el key seleccionado
+	var q: Dictionary = QUESTIONS[random_key]
+	
+	## Registrar que este key ha sido usado
+	_used_questions.append(random_key)
+	## Mantener solo las últimas 5 preguntas usadas (keys) para evitar memoria excesiva
+	while _used_questions.size() > 5:
+		_used_questions.remove_at(0)
+	
+	return q
 
 @onready var root: Control = $Root
 @onready var title_label: Label = $Root/Center/Panel/Margin/VBox/TitleLabel
@@ -38,7 +76,7 @@ func _ready() -> void:
 
 
 func _build_buttons() -> void:
-	for i in 4:
+	for i in range(4):
 		var b: Button = Button.new()
 		b.custom_minimum_size = Vector2(520, 50)
 		b.pressed.connect(_on_answer.bind(i))
@@ -53,12 +91,12 @@ func activate() -> void:
 	_prev_state = GameManager.current_state
 	GameManager.set_state(GameManager.GameState.TRIVIA_ACTIVE)
 
-	var question: Dictionary = QUESTIONS[randi() % QUESTIONS.size()]
+	var question: Dictionary = get_random_question()
 	_correct_index = int(question["c"])
 	title_label.text = "¡CÓDIGO DE SUMINISTRO MILITAR!"
 	question_label.text = str(question["q"])
 	var answers: Array = question["a"]
-	for i in _buttons.size():
+	for i in range(_buttons.size()):
 		if i < answers.size():
 			_buttons[i].text = "%d)  %s" % [i + 1, str(answers[i])]
 			_buttons[i].disabled = false
