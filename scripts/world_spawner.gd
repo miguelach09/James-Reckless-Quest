@@ -9,8 +9,8 @@ const SEG_WIDTH := 512.0
 const GROUND_THICKNESS := 900.0
 const VIEW_AHEAD := 1700.0
 const CLEANUP_BEHIND := 1100.0
-const BOUNCER_CHANCE := 0.7
-const CRATE_RATIO := 0.8
+const BOUNCER_CHANCE := 1.0
+const CRATE_RATIO := 0.5
 
 const CHECKPOINTS: Array[float] = [0.0, 7000.0, 14000.0]
 
