@@ -12,6 +12,10 @@ const SLAM_SPEED := 1900.0
 const MIN_SPEED_TO_CONTINUE := 70.0
 const MAX_FALL := 1700.0
 const BOSS_CHARGE_RANGE := 150.0
+## Si James cae más de esta distancia por debajo del suelo, se considera fuera del mapa.
+const FALL_LIMIT_Y := 1500.0
+## Tiempo máximo cayendo sin tocar el suelo antes de respawnear.
+const MAX_FALL_TIME := 8.0
 
 @export var launch_ground_y: float = 520.0
 
@@ -26,6 +30,7 @@ var _charging_boss: bool = false
 var _can_bounce: bool = false
 var _boost_time: float = 0.0
 var _run_start_x: float = 0.0
+var _fall_time: float = 0.0
 
 
 func _ready() -> void:
@@ -62,6 +67,7 @@ func _fly(delta: float) -> void:
 		_try_charge_boss()
 
 	move_and_slide()
+	_update_fall_watch(delta)
 	_update_checkpoint()
 	_update_anim()
 
@@ -103,11 +109,42 @@ func _update_anim() -> void:
 	if _slam_active:
 		_play_anim("attack")
 	elif not is_on_floor():
-		_play_anim("jump")
+		# Subiendo: pose de salto; cayendo: planeo/floteo animado.
+		_play_anim("jump" if velocity.y < 0.0 else "fly")
 	elif absf(velocity.x) < 25.0:
 		_play_anim("idle")
 	else:
 		_play_anim("run")
+
+
+## Vigila caídas infinitas: si James lleva demasiado tiempo en el aire o se
+## hunde por debajo del suelo, lo devuelve al mapa en el checkpoint actual.
+func _update_fall_watch(delta: float) -> void:
+	if is_on_floor():
+		_fall_time = 0.0
+		return
+	_fall_time += delta
+	var out_of_bounds: bool = global_position.y > launch_ground_y + FALL_LIMIT_Y
+	var falling_too_long: bool = _fall_time > MAX_FALL_TIME and velocity.y > 0.0
+	if out_of_bounds or falling_too_long:
+		_respawn()
+
+
+func _respawn() -> void:
+	_fall_time = 0.0
+	_slam_active = false
+	_charging_boss = false
+	_can_bounce = false
+	_boost_time = 0.0
+	boost_fx.hide()
+
+	global_position = Vector2(GameManager.current_checkpoint_x + 80.0, launch_ground_y)
+	velocity = Vector2.ZERO
+	_run_start_x = global_position.x
+	sprite.flip_h = false
+	_play_anim("idle")
+	# Vuelve al Campamento Táctico para poder relanzarse desde el checkpoint.
+	GameManager.open_shop()
 
 
 func _play_anim(anim: StringName) -> void:
@@ -142,6 +179,7 @@ func launch_from_checkpoint() -> void:
 	_charging_boss = false
 	_can_bounce = false
 	_boost_time = 0.0
+	_fall_time = 0.0
 	boost_fx.hide()
 
 	global_position = Vector2(GameManager.current_checkpoint_x + 80.0, launch_ground_y)

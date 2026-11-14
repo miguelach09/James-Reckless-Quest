@@ -77,7 +77,10 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="VictoryUI/Root/Center/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_override_colors/font_color = Color(0.9, 0.24, 0.19, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.02, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 46
 text = "¡PEPITO RESCATADO!"
 horizontal_alignment = 1
 
@@ -87,7 +90,8 @@ text = "Has derrotado al Líder de los Seres Subterráneos."
 horizontal_alignment = 1
 
 [node name="Button" type="Button" parent="VictoryUI/Root/Center/Panel/Margin/VBox"]
-custom_minimum_size = Vector2(320, 56)
+custom_minimum_size = Vector2(320, 58)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "VOLVER AL MENÚ"

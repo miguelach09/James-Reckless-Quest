@@ -1,0 +1,58 @@
+{
+	"animation_name": "flying_forward_through_the_air_legs_kicking_and_arms_spread_out_gliding_and_flapping",
+	"animation_style": "",
+	"animation_type": "flying forward through the air, legs kicking and arms spread out, gliding and flapping",
+	"columns": 6,
+	"directions": [],
+	"frame_count": 6,
+	"frame_height": 200,
+	"frame_paths": [],
+	"frame_regions": [
+		{
+			"h": 200,
+			"w": 200,
+			"x": 0,
+			"y": 0
+		},
+		{
+			"h": 200,
+			"w": 200,
+			"x": 200,
+			"y": 0
+		},
+		{
+			"h": 200,
+			"w": 200,
+			"x": 400,
+			"y": 0
+		},
+		{
+			"h": 200,
+			"w": 200,
+			"x": 600,
+			"y": 0
+		},
+		{
+			"h": 200,
+			"w": 200,
+			"x": 800,
+			"y": 0
+		},
+		{
+			"h": 200,
+			"w": 200,
+			"x": 1000,
+			"y": 0
+		}
+	],
+	"frame_width": 200,
+	"name": "james_fly",
+	"prompt": "flying forward through the air, legs kicking and arms spread out, gliding and flapping",
+	"rows": 1,
+	"source_image": "res://assets/james/norm_jump_0.png",
+	"source_tool": "animate_sprite",
+	"spritesheet_height": 200,
+	"spritesheet_path": "res://assets/generated/james_fly.png",
+	"spritesheet_width": 1200,
+	"type": "animation"
+}

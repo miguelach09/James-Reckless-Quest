@@ -1,16 +1,41 @@
 [gd_scene format=3 uid="uid://ccmt4ofwdl2ls"]
 
-[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://cflqkadgqcqj0" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://dbn6jsuodi3oa" path="res://assets/generated/jetpack_boost.png" id="2_boost"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_attack_0.png" id="2_d3wef"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_hit_0.png" id="3_o4126"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_idle_0.png" id="4_lkdrv"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_idle_1.png" id="5_p7iby"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_jump_0.png" id="6_0rnld"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_run_0.png" id="7_srp4u"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_run_1.png" id="8_jfpux"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_run_2.png" id="9_61ith"]
-[ext_resource type="Texture2D" path="res://assets/james/norm_run_3.png" id="10_ebwui"]
+[ext_resource type="Texture2D" uid="uid://df6l2314ojbvl" path="res://assets/james/norm_attack_0.png" id="2_d3wef"]
+[ext_resource type="Texture2D" uid="uid://d1ewon5xp2u7e" path="res://assets/generated/james_fly.png" id="3_lkdrv"]
+[ext_resource type="Texture2D" uid="uid://t40mquc50gwb" path="res://assets/james/norm_hit_0.png" id="3_o4126"]
+[ext_resource type="Texture2D" uid="uid://c80alx7dvno18" path="res://assets/james/norm_idle_0.png" id="4_lkdrv"]
+[ext_resource type="Texture2D" uid="uid://r1vq8edt5kb8" path="res://assets/james/norm_idle_1.png" id="5_p7iby"]
+[ext_resource type="Texture2D" uid="uid://c8keehcehlm44" path="res://assets/james/norm_jump_0.png" id="6_0rnld"]
+[ext_resource type="Texture2D" uid="uid://csa2a4ofulaww" path="res://assets/james/norm_run_0.png" id="7_srp4u"]
+[ext_resource type="Texture2D" uid="uid://delg0g6d8anxr" path="res://assets/james/norm_run_1.png" id="8_jfpux"]
+[ext_resource type="Texture2D" uid="uid://th4qruf7albw" path="res://assets/james/norm_run_2.png" id="9_61ith"]
+[ext_resource type="Texture2D" uid="uid://hu7bxo3r4nth" path="res://assets/james/norm_run_3.png" id="10_ebwui"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p7iby"]
+atlas = ExtResource("3_lkdrv")
+region = Rect2(0, 0, 200, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0rnld"]
+atlas = ExtResource("3_lkdrv")
+region = Rect2(200, 0, 200, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_srp4u"]
+atlas = ExtResource("3_lkdrv")
+region = Rect2(400, 0, 200, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jfpux"]
+atlas = ExtResource("3_lkdrv")
+region = Rect2(600, 0, 200, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_61ith"]
+atlas = ExtResource("3_lkdrv")
+region = Rect2(800, 0, 200, 200)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ebwui"]
+atlas = ExtResource("3_lkdrv")
+region = Rect2(1000, 0, 200, 200)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_sfy4j"]
 animations = [{
@@ -21,6 +46,29 @@ animations = [{
 "loop": 0,
 "name": &"attack",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p7iby")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0rnld")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_srp4u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jfpux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_61ith")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ebwui")
+}],
+"loop": 1,
+"name": &"fly",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -71,7 +119,7 @@ animations = [{
 radius = 26.0
 height = 100.0
 
-[node name="Player" type="CharacterBody2D" groups=["player"] unique_id=1693411850]
+[node name="Player" type="CharacterBody2D" unique_id=1693411850 groups=["player"]]
 script = ExtResource("1_player")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=1772884284]
