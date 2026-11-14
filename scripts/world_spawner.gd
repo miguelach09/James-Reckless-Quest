@@ -136,23 +136,26 @@ func _ensure_ground(cam_x: float) -> void:
 
 
 func _free_out_of_range(first_index: int, last_index: int) -> void:
-	var stale: Array = []
+	## Libera segmentos y bouncers que quedaron fuera de la ventana visible.
+	## Colecta las claves a borrar en arrays temporales, luego las elimina para evitar modificar el diccionario durante la iteración.
+	var stale_segments: Array = []
 	for i in _segments.keys():
 		if i < first_index or i > last_index:
-			stale.append(i)
-	for i in stale:
+			stale_segments.append(i)
+	for i in stale_segments:
 		var s: Node = _segments[i]
 		if is_instance_valid(s):
 			s.queue_free()
+	for i in stale_segments:
 		_segments.erase(i)
-	stale.clear()
-	# FIX: only process bouncer indices that actually exist in the dictionary
-	var bouncer_stale: Array = []
+
+	var stale_bouncers: Array = []
 	for i in _bouncers.keys():
 		if i < first_index or i > last_index:
-			bouncer_stale.append(i)
-	for i in bouncer_stale:
+			stale_bouncers.append(i)
+	for i in stale_bouncers:
 		var b: Node = _bouncers[i]
 		if is_instance_valid(b):
 			b.queue_free()
+	for i in stale_bouncers:
 		_bouncers.erase(i)
