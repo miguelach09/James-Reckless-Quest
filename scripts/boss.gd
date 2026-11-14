@@ -13,6 +13,9 @@ const ProjectileScene: PackedScene = preload("res://scenes/BossProjectile.tscn")
 @onready var throw_timer: Timer = $ThrowTimer
 @onready var hp_bar: ProgressBar = $BossUI/HPBar
 
+## Colisión con el jugador
+@onready var collision_shape: CollisionShape2D = $CollisionShape2D
+
 var hp: int = 3
 
 var _player: Node2D
@@ -32,6 +35,14 @@ func _ready() -> void:
 	throw_timer.wait_time = throw_interval
 	throw_timer.timeout.connect(_throw_projectile)
 	throw_timer.start()
+	
+	## Configurar colisión shape para detectar al jugador
+	if collision_shape != null:
+		var shape: RectangleShape2D = RectangleShape2D.new()
+		shape.size = Vector2(120.0, 120.0)  # Tamaño aproximado del boss
+		collision_shape.shape = shape
+		collision_shape.collision_layer = 1
+		collision_shape.collision_mask = 1  # Colisionar con capa de jugador
 
 
 func _throw_projectile() -> void:
@@ -57,6 +68,15 @@ func take_damage(amount: int) -> void:
 	_flash()
 	if hp <= 0:
 		_defeat()
+
+
+func _on_body_entered(body: Node2D) -> void:
+	## Detectar colisión con el jugador
+	if body.is_in_group("player") and not _defeated:
+		take_damage(1)
+		## Empujar al jugador ligeramente hacia atrás
+		if body.has_method("apply_knockback"):
+			body.apply_knockback(Vector2(-1.0, 0.0))
 
 
 func _flash() -> void:

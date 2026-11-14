@@ -16,13 +16,18 @@ const QUESTIONS := {
 	"6": {"q": "¿Qué conservan las Botas Tácticas al rebotar?", "a": ["La velocidad horizontal", "La munición", "La vida", "El tiempo"], "c": 0},
 	"7": {"q": "¿Qué obtiene James al acertar una trivia?", "a": ["Un Rocket Boost", "Un escudo", "Un mapa", "Un aliado"], "c": 0},
 	"8": {"q": "¿Qué pasa si James responde mal una trivia?", "a": ["Pierde la mitad de su velocidad", "Muere", "Vuelve al menú", "Se queda dormido"], "c": 0},
-	"9": {"q": "¿Cuál es el nombre real de James?", "a": ["James", "Juan", "José", "Miguel"], "c": 0},
-	"10": {"q": "¿De qué color es la cabeza de James?", "a": ["Roja", "Azul", "Verde", "Amarilla"], "c": 0},
+	"9": {"q": "¿De dónde es originario James?", "a": ["Ciudad costera", "Región subterránea", "Isla volcánica", "Monte nevado"], "c": 1},
+	"10": {"q": "¿Qué herramienta usa James para minería profunda?", "a": ["Pico", "Paleta", "Taladro", "Explosivos"], "c": 0},
 	"11": {"q": "¿Qué tipo de vehículo usó James para cruzar la ciudad?", "a": ["Cañón táctico", "Helicóptero", "Globos", "Patines"], "c": 0},
 	"12": {"q": "¿Cuál es el nombre del hermano de James?", "a": ["Pepito", "Pablo", "Pedro", "Ricardo"], "c": 0},
 	"13": {"q": "¿Qué arma secundaria tiene James?", "a": ["Látigo", "Espada", "Granada", "Ninguna"], "c": 0},
 	"14": {"q": "¿En qué bioma se encuentra el checkpoint inicial?", "a": ["Ciudad", "Selva", "Volcano", "Desierto"], "c": 0},
 	"15": {"q": "¿Qué poder conservan las Botas Tácticas?", "a": ["Velocidad horizontal", "Salto más alto", "Respiración bajo agua", "Visión nocturna"], "c": 0},
+	"16": {"q": "¿Qué accesorio lleva James en el cuello?", "a": ["Corbata", "Pañuelo", "Cadena", "Ninguno"], "c": 3},
+	"17": {"q": "¿De qué material está hecha la cape de James?", "a": ["Cuero", "Nailon", "Seda", "Poliéster"], "c": 2},
+	"18": {"q": "¿Qué tipo de gafas usa James?", "a": ["Solar", "De lectura", "Ninguna", "Protección"], "c": 3},
+	"19": {"q": "¿Cuál es el alimento favorito de James?", "a": ["Pizza", "Sushi", "Hamburguesa", "Tacos"], "c": 0},
+	"20": {"q": "¿De qué color es el coche de James?", "a": ["Rojo", "Azul", "Verde", "Negro"], "c": 2},
 }
 
 ## Lista ordenada de preguntas (para evitar repeticiones)
@@ -92,17 +97,45 @@ func activate() -> void:
 	GameManager.set_state(GameManager.GameState.TRIVIA_ACTIVE)
 
 	var question: Dictionary = get_random_question()
-	_correct_index = int(question["c"])
-	title_label.text = "¡CÓDIGO DE SUMINISTRO MILITAR!"
-	question_label.text = str(question["q"])
+	## Barajar respuestas manteniendo el índice correcto
 	var answers: Array = question["a"]
-	for i in range(_buttons.size()):
-		if i < answers.size():
-			_buttons[i].text = "%d)  %s" % [i + 1, str(answers[i])]
-			_buttons[i].disabled = false
-		else:
-			_buttons[i].text = ""
-			_buttons[i].disabled = true
+	_correct_index = int(question["c"])
+	
+	## Crear array con respuestas barajadas
+	var shuffled_answers: Array = answers.duplicate()
+	shuffled_answers.shuffle()
+	
+	## Encontrar el nuevo índice de la respuesta correcta después de la barajada
+	var new_correct_index: int = -1
+	for i in range(shuffled_answers.size()):
+		if shuffled_answers[i] == answers[_correct_index]:
+			new_correct_index = i
+			break
+	
+	## Actualizar el correct_index al nuevo índice barajado
+	if new_correct_index != -1:
+		_correct_index = new_correct_index
+		title_label.text = "¡CÓDIGO DE SUMINISTRO MILITAR!"
+		question_label.text = str(question["q"])
+		
+		for i in range(_buttons.size()):
+			if i < shuffled_answers.size():
+				_buttons[i].text = "%d)  %s" % [i + 1, str(shuffled_answers[i])]
+				_buttons[i].disabled = false
+			else:
+				_buttons[i].text = ""
+				_buttons[i].disabled = true
+	else:
+		## Fallback si no se encuentra la respuesta correcta
+		title_label.text = "¡CÓDIGO DE SUMINISTRO MILITAR!"
+		question_label.text = str(question["q"])
+		for i in range(_buttons.size()):
+			if i < answers.size():
+				_buttons[i].text = "%d)  %s" % [i + 1, str(answers[i])]
+				_buttons[i].disabled = false
+			else:
+				_buttons[i].text = ""
+				_buttons[i].disabled = true
 
 	_time_left = ANSWER_TIME
 	timer_bar.max_value = ANSWER_TIME

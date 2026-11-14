@@ -30,6 +30,7 @@ const UPGRADE_BASE_COST := 50
 var current_state: GameState = GameState.INTRO_MENU
 var current_checkpoint_x: float = CHECKPOINT_CITY
 var coins: int = 150
+@export var boss_defeated: bool = false
 
 var launch_power_level: int = 1
 var elasticity_level: int = 1
@@ -139,3 +140,4 @@ func boss_knockback_to_volcano() -> void:
 
 func win() -> void:
 	set_state(GameState.VICTORY)
+	boss_defeated = true

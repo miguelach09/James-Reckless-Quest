@@ -54,6 +54,9 @@ texture = ExtResource("2_cage")
 
 [node name="BossUI" type="CanvasLayer" parent="." unique_id=1715835860]
 
+[node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=1234567890]
+position = Vector2(0, 100)
+/>
 [node name="HPBar" type="ProgressBar" parent="BossUI" unique_id=820644660]
 anchors_preset = 5
 anchor_left = 0.5
