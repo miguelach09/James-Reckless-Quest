@@ -137,5 +137,5 @@ text = "SALIR"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.58, 0.52, 1)
 theme_override_font_sizes/font_size = 17
-text = "X = Rebote   ·   CLIC IZQ = Slam   ·   Rescata a Pepito en el Volcán"
+text = ""
 horizontal_alignment = 1

@@ -1,6 +1,4 @@
 extends CharacterBody2D
-## James: jugador de lanzamiento y rebotes horizontales.
-
 signal stopped
 signal trivia_boost_applied(is_correct: bool)
 
@@ -13,9 +11,7 @@ const MIN_SPEED_TO_CONTINUE := 50.0
 const GROUNDED_COOLDOWN := 3.0
 const MAX_FALL := 1700.0
 const BOSS_CHARGE_RANGE := 150.0
-## Si James cae más de esta distancia por debajo del suelo, se considera fuera del mapa.
 const FALL_LIMIT_Y := 1500.0
-## Tiempo máximo cayendo sin tocar el suelo antes de respawnear.
 const MAX_FALL_TIME := 8.0
 
 @export var launch_ground_y: float = 520.0
@@ -78,11 +74,9 @@ func _fly(delta: float) -> void:
 	_update_fall_watch(delta)
 	_check_boss_victory()
 	
-	## Trackear posición máxima para checkpoints
 	if global_position.x > _max_reached_x:
 		_max_reached_x = global_position.x
 	
-	## Actualizar distancia recorrida
 	_distance_traveled = max(0.0, _max_reached_x - _run_start_x)
 	
 
@@ -97,10 +91,7 @@ func _fly(delta: float) -> void:
 		_bounce()
 
 
-	## **CORRECCIÓN DEFINITIVA: Forzar velocity.x = 0 cuando James está quieto en el suelo**
-	## Esto activará inmediatamente el sprite de muerto
 	if is_on_floor() and not _slam_active:
-		## Si la velocidad horizontal es baja O hace poco que toca el suelo, detenerlo
 		if absf(velocity.x) < 50:
 			velocity.x = 0
 		_time_on_ground += delta
@@ -153,9 +144,7 @@ func _grounded_fallen() -> void:
 	_grounded_timer = 0.0
 	_grounded_active = true
 	velocity.x = 0
-	## Guardar distancia recorrida al morir
 	_distance_at_death = _distance_traveled
-	## Mostrar distancia en la muerte
 	_show_distance_label()
 	_play_anim("dead")
 	_can_bounce = false
@@ -163,8 +152,6 @@ func _grounded_fallen() -> void:
 
 
 func _show_distance_label() -> void:
-	## Actualiza una etiqueta con la distancia recorrida al morir
-	## Se busca un nodo de distancia en la escena actual
 	var death_label = get_node_or_null("Global/UI/DeathDistance")
 	if death_label and _distance_at_death > 0:
 		death_label.text = "Distancia: " + str(int(_distance_at_death)) + " m"
@@ -201,10 +188,8 @@ func _respawn() -> void:
 	_max_reached_x = 0.0
 	boost_fx.hide()
 
-	## Guardar distancia al morir para mostrarla después
 	_distance_at_death = _distance_traveled
 
-	## Mostrar distancia al respawn
 	_show_distance_label()
 
 	global_position = Vector2(GameManager.current_checkpoint_x + 80.0, launch_ground_y)
@@ -258,14 +243,12 @@ func _try_charge_boss() -> void:
 		return
 	for t in targets:
 		if t.has_method("take_damage"):
-			## Usar move_and_collide para detección de colisión más robusta
 			var collision = move_and_collide(Vector2.ZERO)
 			if collision and collision.collider == t:
 				t.take_damage(1)
 				_charging_boss = false
 				velocity.x *= 0.4
 				return
-			## Alternativa: verificar posición relativa
 			if global_position.distance_to(t.global_position) < BOSS_CHARGE_RANGE + 100:
 				t.take_damage(1)
 				_charging_boss = false

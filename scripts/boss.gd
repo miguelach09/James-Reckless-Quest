@@ -71,12 +71,18 @@ func take_damage(amount: int) -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	## Detectar colisión con el jugador
+	## Detectar colisión con el jugador - derrota instantánea
 	if body.is_in_group("player") and not _defeated:
-		take_damage(1)
-		## Empujar al jugador ligeramente hacia atrás
-		if body.has_method("apply_knockback"):
-			body.apply_knockback(Vector2(-1.0, 0.0))
+		_defeated = true
+		throw_timer.stop()
+		if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("hurt"):
+			sprite.play("hurt")
+		if cage != null:
+			var tw: Tween = create_tween()
+			tw.tween_property(cage, "modulate:a", 0.0, 0.6)
+		GameManager.win()
+		defeated.emit()
+		queue_free()
 
 
 func _flash() -> void:

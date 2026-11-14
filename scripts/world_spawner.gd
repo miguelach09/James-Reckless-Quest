@@ -36,6 +36,11 @@ var active: bool = true
 var _segments: Dictionary = {}   # index -> StaticBody2D
 var _bouncers: Dictionary = {}   # index -> Node2D
 
+## Sprite de Pepito para la victoria
+@onready var _pepito: Node2D = $Pepito
+var _pepito_active: bool = false
+var _pepito_sprite: Sprite2D = Sprite2D.new()
+
 
 func _ready() -> void:
 	player = get_tree().get_first_node_in_group("player")
@@ -52,6 +57,15 @@ func _process(_delta: float) -> void:
 			return
 	var cam_x: float = player.global_position.x
 	_ensure_ground(cam_x)
+	
+	## Verificar si el jugador ha alcanzado el área de victoria
+	var victory_line: float = GameManager.BOSS_TRIGGER_X + 500.0
+	if player.global_position.x >= victory_line and not GameManager.current_state == GameManager.GameState.VICTORY:
+		GameManager.set_state(GameManager.GameState.VICTORY)
+		get_tree().change_scene_to_file("res://scenes/IntroMenu.tscn")
+		## Mostrar sprite de Pepito al ganar
+		if _pepito_active:
+			_pepito_sprite.visible = true
 
 
 func biome_for_x(x: float) -> String:
@@ -133,6 +147,11 @@ func _spawn_wall() -> void:
 	wall.texture = tex
 	wall.position = Vector2(GameManager.BOSS_TRIGGER_X, ground_y - float(tex.get_height()) * 0.5 + 20.0)
 	add_child(wall)
+	## Añadir sprite de Pepito en el área de victoria
+	_pepito_sprite.visible = false
+	_pepito_sprite.position = Vector2(GameManager.BOSS_TRIGGER_X + 500.0, ground_y - float(tex.get_height()) * 0.5)
+	_pepito_sprite.texture = load("res://assets/generated/pepito_sprite.png")
+	add_child(_pepito_sprite)
 
 
 func _spawn_segment(index: int) -> void:
