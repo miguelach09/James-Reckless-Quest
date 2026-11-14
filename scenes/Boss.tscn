@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://bb1s0hy5kv6kg"]
+
+[ext_resource type="Script" uid="uid://dlexg2qw1va6f" path="res://scripts/boss.gd" id="1_boss"]
+[ext_resource type="Texture2D" uid="uid://d4j1rvsobjau3" path="res://assets/generated/pepito_cage.png" id="2_cage"]
+[ext_resource type="Texture2D" uid="uid://dbumxv5tumhkg" path="res://assets/uploaded/XJAbkvH-b7WyD0-U6PxJQ.png" id="2_pfyq2"]
+[ext_resource type="Texture2D" uid="uid://dhlchbx4ojifl" path="res://assets/uploaded/HyHNSLmmMTkLqsFUK3vKT.png" id="3_85kei"]
+[ext_resource type="Texture2D" uid="uid://d1ovs08oo4g52" path="res://assets/uploaded/SNdz-zWl-Yl3akFoPARbZ.png" id="4_kitqk"]
+[ext_resource type="Texture2D" uid="uid://dt2pq26a18vsw" path="res://assets/uploaded/bo4U-Fpm9rknAMf6J8k27.png" id="5_gfnkn"]
+[ext_resource type="Texture2D" uid="uid://dpf8h051l3ah2" path="res://assets/uploaded/w8ovNyeBELqw62dKq6vNw.png" id="6_2r62o"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ncbpu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_pfyq2")
+}],
+"loop": 0,
+"name": &"hurt",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_85kei")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_kitqk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_gfnkn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_2r62o")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 4.0
+}]
+
+[node name="Boss" type="Node2D" unique_id=1892927425]
+script = ExtResource("1_boss")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=713800212]
+position = Vector2(0, -150)
+scale = Vector2(0.6, 0.6)
+sprite_frames = SubResource("SpriteFrames_ncbpu")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="Cage" type="Sprite2D" parent="." unique_id=1706586504]
+position = Vector2(190, -70)
+texture = ExtResource("2_cage")
+
+[node name="ThrowTimer" type="Timer" parent="." unique_id=691761891]
+
+[node name="BossUI" type="CanvasLayer" parent="." unique_id=1715835860]
+
+[node name="HPBar" type="ProgressBar" parent="BossUI" unique_id=820644660]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -220.0
+offset_top = 24.0
+offset_right = 220.0
+offset_bottom = 52.0
+grow_horizontal = 2
+value = 100.0
