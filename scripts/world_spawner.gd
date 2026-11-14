@@ -146,10 +146,12 @@ func _free_out_of_range(first_index: int, last_index: int) -> void:
 			s.queue_free()
 		_segments.erase(i)
 	stale.clear()
+	# FIX: only process bouncer indices that actually exist in the dictionary
+	var bouncer_stale: Array = []
 	for i in _bouncers.keys():
 		if i < first_index or i > last_index:
-			stale.append(i)
-	for i in stale:
+			bouncer_stale.append(i)
+	for i in bouncer_stale:
 		var b: Node = _bouncers[i]
 		if is_instance_valid(b):
 			b.queue_free()
