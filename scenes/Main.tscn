@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ShopUI.tscn" id="5_shop"]
 [ext_resource type="Texture2D" uid="uid://bgo5ljcsono31" path="res://assets/uploaded/Wq89waY_rEI296y6WOdhp.png" id="6_sky"]
 [ext_resource type="Texture2D" uid="uid://dxr4s36fx7hyx" path="res://assets/uploaded/KrxFgLZB3mnphXMHIRAUk.png" id="7_nxtc6"]
+[ext_resource type="Texture2D" uid="uid://d2xrdt2wnru1i" path="res://assets/james/Good Game.png" id="8_jlsqs"]
 
 [node name="Main" type="Node2D" unique_id=962961728]
 script = ExtResource("1_main")
@@ -21,14 +22,13 @@ Hecho por Sebas y Miguel!
 Arte y Música de nuestro Amigo, ALB-03!"
 
 [node name="DistanceLabel" type="Label" parent="CanvasLayer" unique_id=1892010010]
-anchors_preset = 15
+custom_minimum_size = Vector2(180, 40)
+anchors_preset = 10
 anchor_right = 1.0
-anchor_top = 0.0
-grow_horizontal = 0
-grow_vertical = 0
 offset_right = -20.0
 offset_bottom = 20.0
-custom_minimum_size = Vector2(180, 40)
+grow_horizontal = 0
+grow_vertical = 0
 horizontal_alignment = 1
 
 [node name="HealthBar" type="CanvasLayer" parent="CanvasLayer" unique_id=1892009999]
@@ -113,6 +113,7 @@ theme_override_constants/separation = 16
 [node name="Artwork" type="TextureRect" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1843828600]
 custom_minimum_size = Vector2(300, 260)
 layout_mode = 2
+texture = ExtResource("8_jlsqs")
 expand_mode = 1
 stretch_mode = 5
 
