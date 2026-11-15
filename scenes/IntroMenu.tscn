@@ -115,6 +115,15 @@ theme_override_font_sizes/font_size = 21
 text = "UNA MISIÓN TEMERARIA CONTRA LOS SERES SUBTERRÁNEOS"
 horizontal_alignment = 1
 
+[node name="Credit" type="Label" parent="MainMenu/Center/VBox" unique_id=282460021]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.76, 0.64, 1)
+theme_override_colors/font_outline_color = Color(0.06, 0.02, 0.02, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "Basado en el Juego de Daydream 2025!"
+horizontal_alignment = 1
+
 [node name="Spacer" type="Control" parent="MainMenu/Center/VBox" unique_id=1501091153]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2

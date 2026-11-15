@@ -28,6 +28,16 @@ const QUESTIONS := {
 "18": {"q": "¿Qué deporte se juega con una canasta?", "a": ["Fútbol", "Tenis", "Natación", "Baloncesto"], "c": 3},
 "19": {"q": "¿Cómo se llama el agua en estado sólido?", "a": ["Hielo", "Vapor", "Lluvia", "Niebla"], "c": 0},
 "20": {"q": "¿Qué usamos para medir la temperatura?", "a": ["Regla", "Balanza", "Termómetro", "Reloj"], "c": 2},
+"21": {"q": "¿Cuál es el río más largo de América del Sur?", "a": ["El Amazonas", "El Orinoco", "El Paraná", "El Magdalena"], "c": 0},
+"22": {"q": "¿Cuántos jugadores de un equipo de fútbol están en la cancha?", "a": ["Nueve", "Diez", "Once", "Doce"], "c": 2},
+"23": {"q": "¿Qué animal es conocido como el rey de la selva?", "a": ["El tigre", "El león", "El elefante", "El oso"], "c": 1},
+"24": {"q": "¿De qué color son la mayoría de las hojas de las plantas?", "a": ["Rojas", "Azules", "Verdes", "Amarillas"], "c": 2},
+"25": {"q": "¿En qué país está la ciudad de Roma?", "a": ["Grecia", "Italia", "Portugal", "Francia"], "c": 1},
+"26": {"q": "¿Cuántos colores tiene el arcoíris?", "a": ["Cinco", "Seis", "Siete", "Ocho"], "c": 2},
+"27": {"q": "¿Qué instrumento se toca con baquetas?", "a": ["El tambor", "El violín", "El piano", "El arpa"], "c": 0},
+"28": {"q": "¿Qué metal se usa mucho en los cables eléctricos?", "a": ["El hierro", "El oro", "El cobre", "El plomo"], "c": 2},
+"29": {"q": "¿Qué animal tiene caparazón y camina muy lento?", "a": ["La tortuga", "El perro", "El gato", "El caballo"], "c": 0},
+"30": {"q": "¿Cuál es el animal terrestre más grande?", "a": ["El elefante", "La jirafa", "El hipopótamo", "El rinoceronte"], "c": 0},
 }
 
 ## Lista ordenada de preguntas (para evitar repeticiones)
@@ -89,7 +99,7 @@ func _build_buttons() -> void:
 		_buttons.append(b)
 
 
-func activate() -> void:
+func activate(title_text: String = "¡CÓDIGO DE SUMINISTRO MILITAR!") -> void:
 	if _active:
 		return
 	_active = true
@@ -115,7 +125,7 @@ func activate() -> void:
 	## Actualizar el correct_index al nuevo índice barajado
 	if new_correct_index != -1:
 		_correct_index = new_correct_index
-		title_label.text = "¡CÓDIGO DE SUMINISTRO MILITAR!"
+		title_label.text = title_text
 		question_label.text = str(question["q"])
 		
 		for i in range(_buttons.size()):
@@ -127,7 +137,7 @@ func activate() -> void:
 				_buttons[i].disabled = true
 	else:
 		## Fallback si no se encuentra la respuesta correcta
-		title_label.text = "¡CÓDIGO DE SUMINISTRO MILITAR!"
+		title_label.text = title_text
 		question_label.text = str(question["q"])
 		for i in range(_buttons.size()):
 			if i < answers.size():

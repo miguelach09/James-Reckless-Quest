@@ -21,7 +21,18 @@ signal upgrade_purchased(upgrade_id: String, new_level: int)
 const CHECKPOINT_CITY := 0.0
 const CHECKPOINT_JUNGLE := 7000.0
 const CHECKPOINT_VOLCANO := 14000.0
-const BOSS_TRIGGER_X := 20000.0
+## Checkpoint avanzado dentro del volcán, para no repetir todo el tramo.
+const CHECKPOINT_VOLCANO_DEEP := 20000.0
+const BOSS_TRIGGER_X := 24000.0
+## Reaparecer justo en la entrada de la guarida del Jefe.
+const CHECKPOINT_BOSS := BOSS_TRIGGER_X
+## Punto donde espera Pepito: la meta final, tras vencer al Jefe.
+const PEPITO_X := BOSS_TRIGGER_X + 2400.0
+## Hasta aquí puede avanzar James mientras el Jefe viva: el Jefe le corta el
+## paso aquí, así Pepito queda claramente separado de la pelea.
+const ARENA_END_X := PEPITO_X - 600.0
+## Vida del Jefe final (más alta = pelea más larga).
+const BOSS_MAX_HP := 5
 
 # --- Mejoras ---
 const MAX_UPGRADE_LEVEL := 10
@@ -54,7 +65,11 @@ func add_coins(amount: int) -> void:
 ## Actualiza el checkpoint si James ha superado un umbral de bioma.
 func update_checkpoint(player_x: float) -> void:
 	var new_cp: float = current_checkpoint_x
-	if player_x >= CHECKPOINT_VOLCANO:
+	if player_x >= CHECKPOINT_BOSS:
+		new_cp = CHECKPOINT_BOSS
+	elif player_x >= CHECKPOINT_VOLCANO_DEEP:
+		new_cp = CHECKPOINT_VOLCANO_DEEP
+	elif player_x >= CHECKPOINT_VOLCANO:
 		new_cp = CHECKPOINT_VOLCANO
 	elif player_x >= CHECKPOINT_JUNGLE:
 		new_cp = CHECKPOINT_JUNGLE
@@ -64,7 +79,11 @@ func update_checkpoint(player_x: float) -> void:
 
 
 func checkpoint_biome_name() -> String:
-	if current_checkpoint_x >= CHECKPOINT_VOLCANO:
+	if current_checkpoint_x >= CHECKPOINT_BOSS:
+		return "La Guarida del Jefe"
+	elif current_checkpoint_x >= CHECKPOINT_VOLCANO_DEEP:
+		return "El Corazón del Volcán"
+	elif current_checkpoint_x >= CHECKPOINT_VOLCANO:
 		return "El Volcán"
 	elif current_checkpoint_x >= CHECKPOINT_JUNGLE:
 		return "La Selva"
@@ -121,6 +140,7 @@ func buy_upgrade(upgrade_id: String) -> bool:
 
 func reset_run() -> void:
 	last_distance = 0.0
+	boss_defeated = false
 
 
 func open_shop() -> void:
@@ -131,13 +151,18 @@ func start_boss_fight() -> void:
 	set_state(GameState.BOSS_FIGHT)
 
 
-## El Jefe golpea a James: vuelve al Checkpoint del Volcán y abre la tienda.
+## El Jefe golpea a James: vuelve al último checkpoint del Volcán y abre la tienda.
 func boss_knockback_to_volcano() -> void:
-	current_checkpoint_x = CHECKPOINT_VOLCANO
-	checkpoint_changed.emit(current_checkpoint_x)
+	if current_checkpoint_x < CHECKPOINT_VOLCANO:
+		current_checkpoint_x = CHECKPOINT_VOLCANO
+		checkpoint_changed.emit(current_checkpoint_x)
 	set_state(GameState.SHOP_MENU)
+
+
+## El Jefe final ha caído: Pepito queda libre y la meta se desbloquea.
+func defeat_boss() -> void:
+	boss_defeated = true
 
 
 func win() -> void:
 	set_state(GameState.VICTORY)
-	boss_defeated = true

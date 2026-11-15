@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ShopUI.tscn" id="5_shop"]
 [ext_resource type="Texture2D" uid="uid://bgo5ljcsono31" path="res://assets/uploaded/Wq89waY_rEI296y6WOdhp.png" id="6_sky"]
 [ext_resource type="Texture2D" uid="uid://dxr4s36fx7hyx" path="res://assets/uploaded/KrxFgLZB3mnphXMHIRAUk.png" id="7_nxtc6"]
+[ext_resource type="Texture2D" path="res://assets/generated/victory_james_pepito.png" id="8_duo"]
 
 [node name="Main" type="Node2D" unique_id=962961728]
 script = ExtResource("1_main")
@@ -88,6 +89,13 @@ theme_override_constants/margin_bottom = 30
 [node name="VBox" type="VBoxContainer" parent="VictoryUI/Root/Center/Panel/Margin" unique_id=1972936787]
 layout_mode = 2
 theme_override_constants/separation = 16
+
+[node name="Artwork" type="TextureRect" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1843828600]
+custom_minimum_size = Vector2(300, 260)
+layout_mode = 2
+texture = ExtResource("8_duo")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Title" type="Label" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1843828641]
 layout_mode = 2

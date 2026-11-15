@@ -49,6 +49,7 @@ func _process(delta: float) -> void:
 func _on_body_entered(body: Node) -> void:
 	if _used or not body.is_in_group("player"):
 		return
+
 	if kind == Kind.CRATE:
 		_used = true
 		if body.has_method("bounce_from_bouncer"):

@@ -1,7 +1,6 @@
-[gd_scene format=3 uid="uid://bb1s0hy5kv6kg"]
+[gd_scene load_steps=9 format=3 uid="uid://bb1s0hy5kv6kg"]
 
 [ext_resource type="Script" uid="uid://dlexg2qw1va6f" path="res://scripts/boss.gd" id="1_boss"]
-[ext_resource type="Texture2D" uid="uid://d4j1rvsobjau3" path="res://assets/generated/pepito_cage.png" id="2_cage"]
 [ext_resource type="Texture2D" uid="uid://dbumxv5tumhkg" path="res://assets/uploaded/XJAbkvH-b7WyD0-U6PxJQ.png" id="2_pfyq2"]
 [ext_resource type="Texture2D" uid="uid://dhlchbx4ojifl" path="res://assets/uploaded/HyHNSLmmMTkLqsFUK3vKT.png" id="3_85kei"]
 [ext_resource type="Texture2D" uid="uid://d1ovs08oo4g52" path="res://assets/uploaded/SNdz-zWl-Yl3akFoPARbZ.png" id="4_kitqk"]
@@ -36,6 +35,9 @@ animations = [{
 "speed": 4.0
 }]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
+size = Vector2(440, 300)
+
 [node name="Boss" type="Node2D" unique_id=1892927425]
 script = ExtResource("1_boss")
 
@@ -46,17 +48,18 @@ sprite_frames = SubResource("SpriteFrames_ncbpu")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="Cage" type="Sprite2D" parent="." unique_id=1706586504]
-position = Vector2(190, -70)
-texture = ExtResource("2_cage")
-
 [node name="ThrowTimer" type="Timer" parent="." unique_id=691761891]
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=1122334401]
+collision_layer = 8
+collision_mask = 1
+
+[node name="HitboxShape" type="CollisionShape2D" parent="Hitbox" unique_id=1122334402]
+position = Vector2(0, -150)
+shape = SubResource("RectangleShape2D_hit")
 
 [node name="BossUI" type="CanvasLayer" parent="." unique_id=1715835860]
 
-[node name="CollisionShape" type="CollisionShape2D" parent="." unique_id=1234567890]
-position = Vector2(0, 100)
-/>
 [node name="HPBar" type="ProgressBar" parent="BossUI" unique_id=820644660]
 anchors_preset = 5
 anchor_left = 0.5

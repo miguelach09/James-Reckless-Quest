@@ -20,6 +20,7 @@ var _boss: Node = null
 
 
 func _ready() -> void:
+	GameManager.reset_run()
 	MusicManager.play("game")
 	victory_ui.hide()
 	victory_button.pressed.connect(_on_victory_continue)
@@ -33,6 +34,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	_update_sky()
 	GameManager.last_distance = maxf(GameManager.last_distance, player.global_position.x)
+	_check_goal()
 
 
 func _biome_for_x(x: float) -> String:
@@ -48,23 +50,36 @@ func _update_sky() -> void:
 	if biome != _current_biome:
 		_current_biome = biome
 		sky_texture.texture = load(SKIES[biome])
-		# --- Música según bioma ---
-		if biome == "volcano":
-			MusicManager.play("boss")
-		else:
-			MusicManager.play("game")
+	_refresh_music()
+
+
+## La música del Jefe suena durante TODO el tramo del volcán y toda la pelea,
+## no solo al entrar: así no se corta al volver de la tienda ni tras un golpe.
+func _refresh_music() -> void:
+	if GameManager.current_state == GameManager.GameState.BOSS_FIGHT or _current_biome == "volcano":
+		MusicManager.play("boss")
+	else:
+		MusicManager.play("game")
+
+
+## Meta final: James llega hasta Pepito. Solo se gana con el Jefe ya vencido;
+## mientras siga en pie, el Jefe lo persigue y le corta el paso al rescate.
+func _check_goal() -> void:
+	if GameManager.current_state == GameManager.GameState.VICTORY:
+		return
+	if player.global_position.x < GameManager.PEPITO_X - 90.0:
+		return
+	if GameManager.boss_defeated:
+		GameManager.win()
 
 
 func _on_state_changed(new_state: int) -> void:
 	match new_state:
 		GameManager.GameState.BOSS_FIGHT:
 			_spawn_boss()
-			MusicManager.play("boss")
 		GameManager.GameState.VICTORY:
 			victory_ui.show()
-		_:
-			# Cualquier otro estado es juego normal (vuelo, tienda tras el jefe...).
-			MusicManager.play("game")
+	_refresh_music()
 
 
 func _spawn_boss() -> void:
@@ -72,7 +87,7 @@ func _spawn_boss() -> void:
 		return
 	_boss = BossScene.instantiate()
 	var gy: float = float(world.get("ground_y"))
-	_boss.global_position = Vector2(GameManager.BOSS_TRIGGER_X + 700.0, gy)
+	_boss.global_position = Vector2(GameManager.BOSS_TRIGGER_X + 600.0, gy)
 	add_child(_boss)
 
 

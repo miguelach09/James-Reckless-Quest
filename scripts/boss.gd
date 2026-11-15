@@ -1,26 +1,33 @@
 extends Node2D
-## Jefe final: Líder de los Seres Subterráneos (lanza obstáculos volcánicos).
+## Jefe final: Líder de los Seres Subterráneos.
+## Custodia la jaula de Pepito y lanza obstáculos volcánicos. Al tocarlo lanza
+## una pregunta: solo si James acierta se le quita vida.
 
 signal defeated
 
 const ProjectileScene: PackedScene = preload("res://scenes/BossProjectile.tscn")
 
-@export var max_hp: int = 3
+@export var max_hp: int = 8
 @export var throw_interval: float = 1.6
+## Espera entre una pregunta y la siguiente al tocar al Jefe.
+@export var question_cooldown: float = 0.9
+## El Jefe persigue a James para no dejarle pasar hacia Pepito.
+@export var move_speed: float = 780.0
+@export var follow_offset: float = 200.0
 
 @onready var sprite: AnimatedSprite2D = $Sprite
-@onready var cage: Sprite2D = $Cage
 @onready var throw_timer: Timer = $ThrowTimer
 @onready var hp_bar: ProgressBar = $BossUI/HPBar
+@onready var hitbox: Area2D = $Hitbox
 
-## Colisión con el jugador
-@onready var collision_shape: CollisionShape2D = $CollisionShape2D
-
-var hp: int = 3
+var hp: int = 8
 
 var _player: Node2D
 var _defeated: bool = false
 var _flash_tween: Tween
+var _contact_cooldown: float = 0.0
+var _question_lock: float = 0.0
+var _question_pending: bool = false
 
 
 func _ready() -> void:
@@ -36,13 +43,37 @@ func _ready() -> void:
 	throw_timer.timeout.connect(_throw_projectile)
 	throw_timer.start()
 	
-	## Configurar colisión shape para detectar al jugador
-	if collision_shape != null:
-		var shape: RectangleShape2D = RectangleShape2D.new()
-		shape.size = Vector2(120.0, 120.0)  # Tamaño aproximado del boss
-		collision_shape.shape = shape
-		collision_shape.collision_layer = 1
-		collision_shape.collision_mask = 1  # Colisionar con capa de jugador
+func _physics_process(delta: float) -> void:
+	if _defeated:
+		return
+	if _question_lock > 0.0:
+		_question_lock -= delta
+	_follow_player(delta)
+	if hitbox == null:
+		return
+	## Mientras hay una pregunta en pantalla, el Jefe no pide otra.
+	if GameManager.current_state == GameManager.GameState.TRIVIA_ACTIVE:
+		return
+	if _contact_cooldown > 0.0:
+		_contact_cooldown -= delta
+		return
+	for body in hitbox.get_overlapping_bodies():
+		if body.is_in_group("player"):
+			_handle_player_contact(body)
+			break
+
+
+## Persigue a James en horizontal, sin salirse del tramo del volcán.
+func _follow_player(delta: float) -> void:
+	if _player == null or not is_instance_valid(_player):
+		_player = get_tree().get_first_node_in_group("player")
+		if _player == null:
+			return
+	var min_x: float = GameManager.BOSS_TRIGGER_X + 200.0
+	## El Jefe se queda entre James y Pepito: nunca encima de Pepito.
+	var max_x: float = GameManager.ARENA_END_X + follow_offset
+	var target_x: float = clampf(_player.global_position.x + follow_offset, min_x, max_x)
+	global_position.x = move_toward(global_position.x, target_x, move_speed * delta)
 
 
 func _throw_projectile() -> void:
@@ -53,7 +84,7 @@ func _throw_projectile() -> void:
 	if _player == null:
 		return
 	var p: Node2D = ProjectileScene.instantiate()
-	p.global_position = global_position + Vector2(-70.0, -20.0)
+	p.global_position = global_position + Vector2(-90.0, -220.0)
 	get_parent().add_child(p)
 	if p.has_method("launch_at"):
 		p.launch_at(_player.global_position + Vector2(0.0, -40.0))
@@ -68,21 +99,56 @@ func take_damage(amount: int) -> void:
 	_flash()
 	if hp <= 0:
 		_defeat()
+	elif hp * 2 <= max_hp:
+		## Fase de furia: lanza obstáculos más seguido.
+		throw_timer.wait_time = maxf(0.6, throw_interval * 0.55)
 
 
-func _on_body_entered(body: Node2D) -> void:
-	## Detectar colisión con el jugador - derrota instantánea
-	if body.is_in_group("player") and not _defeated:
-		_defeated = true
-		throw_timer.stop()
-		if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("hurt"):
-			sprite.play("hurt")
-		if cage != null:
-			var tw: Tween = create_tween()
-			tw.tween_property(cage, "modulate:a", 0.0, 0.6)
-		GameManager.win()
-		defeated.emit()
-		queue_free()
+## Choque con James: si llega atacando (Slam o embestida) recibe daño;
+## si solo lo toca, el Jefe lo rechaza.
+func _handle_player_contact(body: Node) -> void:
+	if _defeated:
+		return
+	var attacking: bool = false
+	if body.has_method("is_slamming") and body.is_slamming():
+		attacking = true
+	elif body.has_method("is_charging_boss") and body.is_charging_boss():
+		attacking = true
+
+	if attacking:
+		if body.has_method("bounce_from_boss"):
+			body.bounce_from_boss()
+		_contact_cooldown = 0.3
+	else:
+		_contact_cooldown = 0.5
+
+	## El daño no es automático: al tocar al Jefe hay que acertar una pregunta.
+	if _question_lock <= 0.0 and not _question_pending:
+		_ask_damage_question()
+
+
+## Lanza una pregunta de trivia: solo un acierto le quita vida al Jefe.
+func _ask_damage_question() -> void:
+	var tm: Node = get_tree().get_first_node_in_group("trivia_manager")
+	if tm == null or not tm.has_method("activate") or not tm.has_method("is_active"):
+		return
+	if tm.is_active():
+		return
+	if not tm.is_connected("question_answered", _on_question_answered):
+		tm.connect("question_answered", _on_question_answered)
+	_question_pending = true
+	tm.activate("¡ACIERTA PARA GOLPEARLO!")
+
+
+func _on_question_answered(is_correct: bool) -> void:
+	if not _question_pending:
+		return
+	_question_pending = false
+	_question_lock = question_cooldown
+	if _defeated:
+		return
+	if is_correct:
+		take_damage(1)
 
 
 func _flash() -> void:
@@ -100,12 +166,13 @@ func _defeat() -> void:
 	throw_timer.stop()
 	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("hurt"):
 		sprite.play("hurt")
-	if cage != null:
-		var tw: Tween = create_tween()
-		tw.tween_property(cage, "modulate:a", 0.0, 0.6)
-	GameManager.win()
+	GameManager.defeat_boss()
 	defeated.emit()
-	await get_tree().create_timer(1.4).timeout
+	## James sale disparado hacia Pepito para el rescate.
+	var player: Node = get_tree().get_first_node_in_group("player")
+	if player != null and player.has_method("launch_toward_pepito"):
+		player.launch_toward_pepito()
+	await get_tree().create_timer(1.6).timeout
 	queue_free()
 
 

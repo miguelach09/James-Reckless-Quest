@@ -12,7 +12,7 @@ const CLEANUP_BEHIND := 1300.0
 const BOUNCER_CHANCE := 1.0
 const CRATE_RATIO := 0.5
 
-const CHECKPOINTS: Array[float] = [0.0, 7000.0, 14000.0]
+const CHECKPOINTS: Array[float] = [0.0, 7000.0, 14000.0, 20000.0]
 
 const FLOOR_COLORS: Dictionary = {
 	"city": Color(0.28, 0.15, 0.26),
@@ -27,6 +27,8 @@ const FLOOR_TOP_COLORS: Dictionary = {
 
 const CANNON_TEXTURE := "res://assets/generated/military_cannon.png"
 const WALL_TEXTURE := "res://assets/generated/volcanic_wall.png"
+const PEPITO_TEXTURE := "res://assets/generated/pepito_sprite.png"
+const PEPITO_CAGE_TEXTURE := "res://assets/generated/pepito_cage.png"
 
 @export var ground_y: float = 520.0
 
@@ -36,10 +38,10 @@ var active: bool = true
 var _segments: Dictionary = {}   # index -> StaticBody2D
 var _bouncers: Dictionary = {}   # index -> Node2D
 
-## Sprite de Pepito para la victoria
-@onready var _pepito: Node2D = $Pepito
-var _pepito_active: bool = false
-var _pepito_sprite: Sprite2D = Sprite2D.new()
+## Pepito, enjaulado por el Jefe: la meta final a la que debe llegar James.
+var _pepito_sprite: Sprite2D = null
+var _pepito_cage: Sprite2D = null
+var _cage_opened: bool = false
 
 
 func _ready() -> void:
@@ -58,14 +60,9 @@ func _process(_delta: float) -> void:
 	var cam_x: float = player.global_position.x
 	_ensure_ground(cam_x)
 	
-	## Verificar si el jugador ha alcanzado el área de victoria
-	var victory_line: float = GameManager.BOSS_TRIGGER_X + 500.0
-	if player.global_position.x >= victory_line and not GameManager.current_state == GameManager.GameState.VICTORY:
-		GameManager.set_state(GameManager.GameState.VICTORY)
-		get_tree().change_scene_to_file("res://scenes/IntroMenu.tscn")
-		## Mostrar sprite de Pepito al ganar
-		if _pepito_active:
-			_pepito_sprite.visible = true
+	## Al caer el Jefe, la jaula de Pepito se abre.
+	if GameManager.boss_defeated and not _cage_opened:
+		_open_pepito_cage()
 
 
 func biome_for_x(x: float) -> String:
@@ -147,11 +144,39 @@ func _spawn_wall() -> void:
 	wall.texture = tex
 	wall.position = Vector2(GameManager.BOSS_TRIGGER_X, ground_y - float(tex.get_height()) * 0.5 + 20.0)
 	add_child(wall)
-	## Añadir sprite de Pepito en el área de victoria
-	_pepito_sprite.visible = false
-	_pepito_sprite.position = Vector2(GameManager.BOSS_TRIGGER_X + 500.0, ground_y - float(tex.get_height()) * 0.5)
-	_pepito_sprite.texture = load("res://assets/generated/pepito_sprite.png")
+	_spawn_pepito()
+
+
+## Pepito espera enjaulado al final del recorrido, justo después del Jefe.
+func _spawn_pepito() -> void:
+	var base_y: float = ground_y - 110.0
+
+	_pepito_sprite = Sprite2D.new()
+	_pepito_sprite.texture = load(PEPITO_TEXTURE)
+	_pepito_sprite.position = Vector2(GameManager.PEPITO_X, base_y + 20.0)
+	_pepito_sprite.scale = Vector2(0.66, 0.66)
 	add_child(_pepito_sprite)
+
+	## La jaula se dibuja encima: Pepito queda preso hasta que caiga el Jefe.
+	_pepito_cage = Sprite2D.new()
+	_pepito_cage.texture = load(PEPITO_CAGE_TEXTURE)
+	_pepito_cage.position = Vector2(GameManager.PEPITO_X, base_y)
+	_pepito_cage.scale = Vector2(1.35, 1.35)
+	add_child(_pepito_cage)
+
+
+## La jaula se abre cuando el Jefe cae: Pepito queda libre.
+func _open_pepito_cage() -> void:
+	_cage_opened = true
+	if _pepito_cage == null:
+		return
+	var tw: Tween = create_tween()
+	tw.tween_property(_pepito_cage, "modulate:a", 0.0, 0.8)
+	tw.tween_callback(_pepito_cage.queue_free)
+	if _pepito_sprite != null:
+		var pop: Tween = create_tween()
+		pop.tween_property(_pepito_sprite, "scale", Vector2(1.25, 1.25), 0.35)
+		pop.tween_property(_pepito_sprite, "scale", Vector2(1.0, 1.0), 0.35)
 
 
 func _spawn_segment(index: int) -> void:
@@ -204,6 +229,9 @@ func _spawn_two_bouncers(index: int, seg_x: float) -> void:
 func _spawn_bouncer_at_index(index: int, bouncer_idx: int, x: float, y: float) -> void:
 	var key: String = str(index) + "_" + str(bouncer_idx)
 	if key in _bouncers:
+		return
+	## Nada de rebotadores en el tramo final: Pepito queda despejado.
+	if x > GameManager.ARENA_END_X - 120.0:
 		return
 	var b: Node2D = BouncerScene.instantiate()
 	b.position = Vector2(x, clamp(y, ground_y - 120, ground_y - 44))
