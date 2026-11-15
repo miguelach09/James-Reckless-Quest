@@ -42,6 +42,7 @@ var current_state: GameState = GameState.INTRO_MENU
 var current_checkpoint_x: float = CHECKPOINT_CITY
 var coins: int = 150
 @export var boss_defeated: bool = false
+var _is_dead: bool = false
 
 var launch_power_level: int = 1
 var elasticity_level: int = 1
@@ -141,6 +142,7 @@ func buy_upgrade(upgrade_id: String) -> bool:
 func reset_run() -> void:
 	last_distance = 0.0
 	boss_defeated = false
+	_is_dead = false
 
 
 func open_shop() -> void:

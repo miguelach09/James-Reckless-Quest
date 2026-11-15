@@ -24,6 +24,9 @@ func _ready() -> void:
 	GameManager.coins_changed.connect(_on_coins_changed)
 	GameManager.checkpoint_changed.connect(_on_checkpoint_changed)
 	_on_state_changed(GameManager.current_state)
+	# Check if this is a death shop opening
+	if GameManager.current_state == GameManager.GameState.SHOP_MENU and GameManager._is_dead:
+		show_death_screen()
 
 
 func _build_rows() -> void:
@@ -92,6 +95,44 @@ func _refresh() -> void:
 func _on_buy_pressed(id: String) -> void:
 	if GameManager.buy_upgrade(id):
 		_refresh()
+
+
+func show_death_screen() -> void:
+	# Hide the upgrade rows
+	rows_box.hide()
+	# Get root dimensions
+	var r_size: Vector2 = root.size
+	# Create death label
+	var death_label: Label = Label.new()
+	death_label.text = "Has muerto"
+	death_label.font_size = 48
+	death_label.color = Color(1.0, 0.0, 0.0, 1.0)
+	death_label.anchor_shrink = Vector2(0.5, 0.5)
+	death_label.position = Vector2(r_size.x / 2, 100)
+	root.add_child(death_label)
+	
+	# Add James muerto sprite placeholder
+	var james_sprite: Sprite2D = Sprite2D.new()
+	# Use a gray color rect as placeholder for the dead james sprite
+	james_sprite.color = Color(0.5, 0.5, 0.5, 1.0)
+	james_sprite.custom_minimum_size = Vector2(100, 100)
+	james_sprite.position = Vector2(r_size.x / 2, 200)
+	root.add_child(james_sprite)
+	
+	# Add restart button
+	var restart_button: Button = Button.new()
+	restart_button.text = "Reintentar"
+	restart_button.position = Vector2(r_size.x / 2 - 60, 350)
+	restart_button.pressed.connect(_on_restart_pressed)
+	root.add_child(restart_button)
+
+
+func _on_restart_pressed() -> void:
+	root.hide()
+	rows_box.show()
+	# Reset death state
+	GameManager._is_dead = false
+	_on_state_changed(GameManager.GameState.SHOP_MENU)
 
 
 func _on_launch_pressed() -> void:

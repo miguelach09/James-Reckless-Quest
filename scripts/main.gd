@@ -14,12 +14,14 @@ const SKIES: Dictionary = {
 @onready var sky_texture: TextureRect = $Sky/SkyTexture
 @onready var victory_ui: CanvasLayer = $VictoryUI
 @onready var victory_button: Button = $VictoryUI/Root/Center/Panel/Margin/VBox/Button
-@onready var distance_label: Label = $DistanceLabel
+@onready var distance_label: Label = $CanvasLayer/DistanceLabel
 
 var _current_biome: String = ""
 var _boss: Node = null
 var _distance: float = 0.0
 var _high_score: float = 0.0
+var _is_store_active: bool = false
+var _previous_game_state: int = 0
 
 
 func _ready() -> void:
@@ -39,10 +41,10 @@ func _process(_delta: float) -> void:
 	GameManager.last_distance = maxf(GameManager.last_distance, player.global_position.x)
 	_check_goal()
 	_update_distance()
-	
-	# Toggle pause with P key or Escape
-	if Input.is_key_pressed(KEY_P) or Input.is_key_pressed(KEY_ESCAPE):
-		_toggle_pause()
+
+	# Alternar menú de tienda al presionar R
+	if Input.is_key_pressed(KEY_R):
+		_toggle_store()
 
 
 func _biome_for_x(x: float) -> String:
@@ -64,10 +66,14 @@ func _update_sky() -> void:
 ## La música del Jefe suena durante TODO el tramo del volcán y toda la pelea,
 ## no solo al entrar: así no se corta al volver de la tienda ni tras un golpe.
 func _refresh_music() -> void:
-	if GameManager.current_state == GameManager.GameState.BOSS_FIGHT or _current_biome == "volcano":
+	# Boss fight always plays boss music, regardless of biome
+	if GameManager.current_state == GameManager.GameState.BOSS_FIGHT:
 		MusicManager.play("boss")
 	else:
-		MusicManager.play("game")
+		if _current_biome == "volcano":
+			MusicManager.play("boss")
+		else:
+			MusicManager.play("game")
 
 
 ## Meta final: James llega hasta Pepito. Solo se gana con el Jefe ya vencido;
@@ -104,14 +110,37 @@ func _on_victory_continue() -> void:
 	GameManager.coins = 150
 	get_tree().change_scene_to_file("res://scenes/IntroMenu.tscn")
 
-func _toggle_pause() -> void:
-	get_tree().paused = not get_tree().paused
+func _game_restart() -> void:
+	GameManager.reset_run()
+	MusicManager.play("game")
+	world.set("player", player)
+	GameManager.open_shop()
+	_current_biome = ""
+	_distance = 0.0
+	_high_score = 0.0
+	player.position = Vector2(GameManager.CHECKPOINT_CITY + 80, 520)
+	player.velocity = Vector2.ZERO
+	player.show()
+
+func _toggle_store() -> void:
+	_is_store_active = not _is_store_active
+	if _is_store_active:
+		# Store the current game state before opening shop
+		_previous_game_state = GameManager.current_state
+		GameManager.open_shop()
+	else:
+		# Restore the game state that was active before the shop opened
+		GameManager.set_state(_previous_game_state)
+		get_tree().paused = false
 
 func _update_distance() -> void:
-	_distance = maxf(0.0, player.global_position.x - 80.0)  # Desde el checkpoint
-	distance_label.text = "Dist: " + str(_distance) + " m"
+	# Distancia desde checkpoint actual (mismos 80px que al morir)
+	_distance = maxf(0.0, player.global_position.x - 80.0)
 	
-	# Check for new record
-	if _distance > _high_score:
-		_high_score = _distance
-		distance_label.text += "\n¡Nuevo récord!"
+	# Mostrar distancia actual en label (números enteros, sin decimales)
+	var dist_str = str(int(_distance))  # Sin decimales
+	distance_label.text = "Dist: " + dist_str + " m"
+	
+	# Ya no trackeamos la distancia total de la partida aquí
+	# Eso se mostrará cuando el jugador muera en la pantalla de la tienda
+	# (player.gd se encarga de mostrar la distancia total al muerte)

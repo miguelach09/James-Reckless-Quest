@@ -150,14 +150,9 @@ func _check_stopped() -> void:
 			_is_dead = true
 			_grounded_fallen()
 			_can_bounce = false
+			# Set death flag in GameManager so shop knows to show death screen
+			GameManager._is_dead = true
 			GameManager.open_shop()
-			var james = get_tree().get_first_node_in_group("player")
-			if james:
-				hide()
-				james.launch_from_checkpoint
-				show()
-				_play_anim("idle")
-				_is_dead = false
 		else:
 			_grounded_active = false
 
@@ -175,9 +170,11 @@ func _grounded_fallen() -> void:
 
 
 func _show_distance_label() -> void:
-	var death_label = get_node_or_null("Global/UI/DeathDistance")
-	if death_label and _distance_at_death > 0:
-		death_label.text = "Distancia: " + str(int(_distance_at_death)) + " m"
+	# Access DistanceLabel from Main scene via tree root
+	var main_node = get_tree().root.get_node("Main")
+	var distance_label = main_node.get_node("CanvasLayer/DistanceLabel")
+	if distance_label and _distance_at_death > 0:
+		distance_label.text = "Dist: " + str(int(_distance_at_death)) + " m (muerto)"
 
 func _update_anim() -> void:
 	sprite.flip_h = velocity.x < -1.0
@@ -239,6 +236,8 @@ func launch_from_checkpoint() -> void:
 	velocity = Vector2(BASE_LAUNCH_VX * power, BASE_LAUNCH_VY * power)
 	sprite.flip_h = false
 	_play_anim("run")
+	_is_dead = false  # Reset death state
+	GameManager._is_dead = false  # Reset game manager death state
 	GameManager.set_state(GameManager.GameState.FLYING)
 
 

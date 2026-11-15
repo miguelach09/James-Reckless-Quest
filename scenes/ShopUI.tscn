@@ -47,10 +47,10 @@ theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Root/Center/Panel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.24, 0.19, 1)
+theme_override_colors/font_color = Color(0.98, 0.95, 0.84, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.02, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 38
 text = "CAMPAMENTO TÁCTICO"
 horizontal_alignment = 1
 
@@ -69,5 +69,5 @@ theme_override_constants/separation = 10
 [node name="LaunchButton" type="Button" parent="Root/Center/Panel/Margin/VBox"]
 custom_minimum_size = Vector2(560, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "LANZAR DESDE CHECKPOINT"

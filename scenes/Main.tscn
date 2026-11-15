@@ -18,17 +18,32 @@ script = ExtResource("1_main")
 offset_right = 40.0
 offset_bottom = 31.0
 text = "Para hacer Slam sobre el enemigo, presiona Espacio!
+Para Pausar, presiona R!
 Hecho por Sebas y Miguel!
 Arte y Música de nuestro Amigo, ALB-03!"
 
 [node name="DistanceLabel" type="Label" parent="CanvasLayer" unique_id=1892010010]
 custom_minimum_size = Vector2(180, 40)
-anchors_preset = 10
+anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
+anchor_bottom = 1.0
 offset_right = -20.0
-offset_bottom = 20.0
 grow_horizontal = 0
 grow_vertical = 0
+horizontal_alignment = 1
+
+[node name="PausedLabel" type="Label" parent="CanvasLayer" unique_id=1892011001]
+visible = false
+modulate = Color(1, 1, 1, 0.8)
+custom_minimum_size = Vector2(200, 60)
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 52
+text = "PAUSADO"
 horizontal_alignment = 1
 
 [node name="HealthBar" type="CanvasLayer" parent="CanvasLayer" unique_id=1892009999]
@@ -119,10 +134,10 @@ stretch_mode = 5
 
 [node name="Title" type="Label" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1843828641]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.24, 0.19, 1)
+theme_override_colors/font_color = Color(0.97, 0.94, 0.82, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.02, 0.02, 1)
 theme_override_constants/outline_size = 7
-theme_override_font_sizes/font_size = 46
+theme_override_font_sizes/font_size = 50
 text = "¡PEPITO RESCATADO!"
 horizontal_alignment = 1
 
@@ -135,5 +150,5 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(320, 58)
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "VOLVER AL MENÚ"
