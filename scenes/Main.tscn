@@ -2,12 +2,11 @@
 
 [ext_resource type="Script" uid="uid://c2sfowm5soswy" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://ccmt4ofwdl2ls" path="res://scenes/Player.tscn" id="2_player"]
-[ext_resource type="Script" uid="uid://bfu0t5nxtuiqg" path="res://scripts/world_spawner.gd" id="3_world"]
+[ext_resource type="Script" uid="uid://b1m1ilxm53dff" path="res://scripts/world_spawner.gd" id="3_world"]
 [ext_resource type="PackedScene" path="res://scenes/TriviaUI.tscn" id="4_trivia"]
 [ext_resource type="PackedScene" path="res://scenes/ShopUI.tscn" id="5_shop"]
 [ext_resource type="Texture2D" uid="uid://bgo5ljcsono31" path="res://assets/uploaded/Wq89waY_rEI296y6WOdhp.png" id="6_sky"]
 [ext_resource type="Texture2D" uid="uid://dxr4s36fx7hyx" path="res://assets/uploaded/KrxFgLZB3mnphXMHIRAUk.png" id="7_nxtc6"]
-[ext_resource type="Texture2D" path="res://assets/generated/victory_james_pepito.png" id="8_duo"]
 
 [node name="Main" type="Node2D" unique_id=962961728]
 script = ExtResource("1_main")
@@ -18,7 +17,28 @@ script = ExtResource("1_main")
 offset_right = 40.0
 offset_bottom = 31.0
 text = "Para hacer Slam sobre el enemigo, presiona Espacio!
-Hecho por Sebas y Miguel!"
+Hecho por Sebas y Miguel!
+Arte y Música de nuestro Amigo, ALB-03!"
+
+[node name="DistanceLabel" type="Label" parent="CanvasLayer" unique_id=1892010010]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_top = 0.0
+grow_horizontal = 0
+grow_vertical = 0
+offset_right = -20.0
+offset_bottom = 20.0
+custom_minimum_size = Vector2(180, 40)
+horizontal_alignment = 1
+
+[node name="HealthBar" type="CanvasLayer" parent="CanvasLayer" unique_id=1892009999]
+
+[node name="HealthBar#HeartIcon" type="Sprite2D" parent="." unique_id=1892010000]
+
+[node name="HealthBar#HPBar" type="ProgressBar" parent="." unique_id=1892010001]
+custom_minimum_size = Vector2(150, 20)
+max_value = 1.0
+value = 1.0
 
 [node name="Sky" type="CanvasLayer" parent="." unique_id=1726326175]
 layer = -10
@@ -93,7 +113,6 @@ theme_override_constants/separation = 16
 [node name="Artwork" type="TextureRect" parent="VictoryUI/Root/Center/Panel/Margin/VBox" unique_id=1843828600]
 custom_minimum_size = Vector2(300, 260)
 layout_mode = 2
-texture = ExtResource("8_duo")
 expand_mode = 1
 stretch_mode = 5
 

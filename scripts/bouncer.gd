@@ -4,7 +4,7 @@ extends Area2D
 
 enum Kind { ENEMY, CRATE }
 
-const ENEMY_TEXTURE := "res://assets/generated/enemy_ser.png"
+const ENEMY_TEXTURE := "res://assets/generated/white_ball_face.png"
 const CRATE_TEXTURE := "res://assets/generated/supply_crate.png"
 
 @onready var sprite: Sprite2D = $Sprite
@@ -37,7 +37,7 @@ func _apply_visual() -> void:
 		sprite.scale = Vector2(0.85, 0.85)
 	else:
 		sprite.texture = load(ENEMY_TEXTURE)
-		sprite.scale = Vector2.ONE
+		sprite.scale = Vector2(0.25, 0.25)
 
 
 func _process(delta: float) -> void:

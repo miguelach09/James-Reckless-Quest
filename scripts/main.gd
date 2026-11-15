@@ -4,9 +4,9 @@ extends Node2D
 const BossScene: PackedScene = preload("res://scenes/Boss.tscn")
 
 const SKIES: Dictionary = {
-	"city": "res://assets/uploaded/Wq89waY_rEI296y6WOdhp.png",
-	"jungle": "res://assets/uploaded/5hVtKKt2v9DOFUJTALxq1.png",
-	"volcano": "res://assets/uploaded/713zZZzS5QZqieubp_y3F.png",
+	"city": "res://assets/uploaded/city.png",
+	"jungle": "res://assets/uploaded/jungle.png",
+	"volcano": "res://assets/uploaded/volcano.png",
 }
 
 @onready var world: Node2D = $World
@@ -14,9 +14,12 @@ const SKIES: Dictionary = {
 @onready var sky_texture: TextureRect = $Sky/SkyTexture
 @onready var victory_ui: CanvasLayer = $VictoryUI
 @onready var victory_button: Button = $VictoryUI/Root/Center/Panel/Margin/VBox/Button
+@onready var distance_label: Label = $DistanceLabel
 
 var _current_biome: String = ""
 var _boss: Node = null
+var _distance: float = 0.0
+var _high_score: float = 0.0
 
 
 func _ready() -> void:
@@ -35,6 +38,11 @@ func _process(_delta: float) -> void:
 	_update_sky()
 	GameManager.last_distance = maxf(GameManager.last_distance, player.global_position.x)
 	_check_goal()
+	_update_distance()
+	
+	# Toggle pause with P key or Escape
+	if Input.is_key_pressed(KEY_P) or Input.is_key_pressed(KEY_ESCAPE):
+		_toggle_pause()
 
 
 func _biome_for_x(x: float) -> String:
@@ -95,3 +103,15 @@ func _on_victory_continue() -> void:
 	GameManager.current_checkpoint_x = GameManager.CHECKPOINT_CITY
 	GameManager.coins = 150
 	get_tree().change_scene_to_file("res://scenes/IntroMenu.tscn")
+
+func _toggle_pause() -> void:
+	get_tree().paused = not get_tree().paused
+
+func _update_distance() -> void:
+	_distance = maxf(0.0, player.global_position.x - 80.0)  # Desde el checkpoint
+	distance_label.text = "Dist: " + str(_distance) + " m"
+	
+	# Check for new record
+	if _distance > _high_score:
+		_high_score = _distance
+		distance_label.text += "\n¡Nuevo récord!"

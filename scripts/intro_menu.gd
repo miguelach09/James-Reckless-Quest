@@ -1,11 +1,7 @@
 extends Control
 ## Pantalla de Historia (efecto máquina de escribir) + Menú Principal.
 
-const STORY_LINES: Array[String] = [
-	"Los Seres Subterráneos han emergido de las profundidades con un solo objetivo: dominar la Tierra. En su ataque, secuestraron a Pepito y lo llevaron al corazón de un volcán activo.",
-	"Para el ex-soldado James, ir a pie tomaría demasiado tiempo... Así que tomó una decisión temeraria: meterse en un cañón táctico de largo alcance para cruzar la Ciudad y la Selva volando a toda velocidad, aplastando monstruos y desbloqueando suministros militares en el aire.",
-	"¡Prepárate! Aquí comienza... JAMES RECKLESS QUEST.",
-]
+const HOW_TO_PLAY_TEXT: String = "¡JAMES RECKLESS QUEST!\n\nUsa ESPACIO para aplastar (Slam) a los enemigos.\nEvita chocar contra el suelo tras lanzar.\nRecolecta mejoras en la tienda entre biomas.\nLlega a Pepito al final del volcán antes de que el Jefe te detenga."
 const CHARS_PER_SECOND := 45.0
 const MAIN_SCENE := "res://scenes/Main.tscn"
 
@@ -27,7 +23,7 @@ func _ready() -> void:
 	main_menu.hide()
 	story_panel.show()
 
-	_full_text = "\n\n".join(STORY_LINES)
+	_full_text = HOW_TO_PLAY_TEXT
 	story_text.text = _full_text
 	story_text.visible_characters = 0
 	_revealed = 0.0

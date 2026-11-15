@@ -13,4 +13,8 @@ simplemente no suena ese momento y no da error.
 
 Puedes usar otros nombres o formatos (OGG) editando el diccionario TRACKS
 en res://scripts/music_manager.gd, y ajustar el volumen en la propiedad
+"volume_db" (por defecto -8 dB.
+
+También puedes añadir música de ALB-03 con los mismos nombres o nombres personalizados.
+en res://scripts/music_manager.gd, y ajustar el volumen en la propiedad
 "volume_db" (por defecto -8 dB).
